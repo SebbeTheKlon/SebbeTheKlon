@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bakgrundseffekter — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* --- 01 Aurora --- */
+  .aurora-stage { min-height: 340px; }
+  .aurora {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    filter: blur(60px) saturate(1.4);
+  }
+  .aurora .blob {
+    position: absolute;
+    width: 45%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    opacity: .55;
+    mix-blend-mode: screen;
+  }
+  .aurora .b1 { background: #8b5cf6; top: -10%; left: 5%; animation: drift1 14s ease-in-out infinite alternate; }
+  .aurora .b2 { background: #22d3ee; bottom: -20%; left: 35%; animation: drift2 18s ease-in-out infinite alternate; }
+  .aurora .b3 { background: #f472b6; top: 0; right: 0; animation: drift3 16s ease-in-out infinite alternate; }
+  @keyframes drift1 { to { transform: translate(60%, 40%) scale(1.25); } }
+  @keyframes drift2 { to { transform: translate(-40%, -30%) scale(.85); } }
+  @keyframes drift3 { to { transform: translate(-50%, 45%) scale(1.15); } }
+  .aurora-label { position: relative; z-index: 2; font-weight: 700; font-size: 1.4rem; letter-spacing: -.01em; }
+
+  /* --- 02 Partikelnät: canvas fyller scenen --- */
+  .net-stage { min-height: 340px; padding: 0; }
+  .net-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .net-hint { position: relative; z-index: 2; color: var(--muted); font-size: .85rem; pointer-events: none; }
+
+  /* --- 03 Punktrutnät med spotlight --- */
+  .dots-stage {
+    min-height: 320px;
+    padding: 0;
+    background-image: radial-gradient(rgba(255,255,255,.16) 1px, transparent 1.5px);
+    background-size: 26px 26px;
+    cursor: crosshair;
+  }
+  .dots-light {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(220px circle at var(--mx, -300px) var(--my, -300px), rgba(139,92,246,.35), transparent 70%);
+    pointer-events: none;
+  }
+  .dots-glow {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(var(--cyan) 1px, transparent 1.5px);
+    background-size: 26px 26px;
+    -webkit-mask-image: radial-gradient(180px circle at var(--mx, -300px) var(--my, -300px), #000 30%, transparent 70%);
+    mask-image: radial-gradient(180px circle at var(--mx, -300px) var(--my, -300px), #000 30%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* --- 04 Animerad gradient --- */
+  .grad-stage {
+    min-height: 300px;
+    background: linear-gradient(-45deg, #8b5cf6, #0e7490, #f472b6, #1e1b4b);
+    background-size: 400% 400%;
+    animation: grad-move 12s ease infinite;
+  }
+  @keyframes grad-move {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  .grad-card {
+    background: rgba(7,7,13,.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 14px;
+    padding: 1.4rem 2rem;
+    font-weight: 600;
+  }
+
+  /* --- 05 Stjärnfält --- */
+  .stars-stage { min-height: 340px; padding: 0; background: radial-gradient(ellipse at bottom, #0d0d2b 0%, #05050c 100%); }
+  .stars-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+  /* --- 06 Ljusstrimmor (conic beams) --- */
+  .beams-stage { min-height: 320px; }
+  .beams {
+    position: absolute;
+    inset: -40%;
+    background: conic-gradient(from 0deg,
+      transparent 0deg, rgba(139,92,246,.12) 20deg, transparent 45deg,
+      transparent 120deg, rgba(34,211,238,.1) 150deg, transparent 180deg,
+      transparent 260deg, rgba(244,114,182,.09) 300deg, transparent 330deg);
+    animation: beam-spin 26s linear infinite;
+  }
+  @keyframes beam-spin { to { transform: rotate(360deg); } }
+  .beams-core {
+    position: relative;
+    z-index: 2;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(139,92,246,.9), rgba(139,92,246,0) 70%);
+    animation: core-pulse 3.5s ease-in-out infinite;
+  }
+  @keyframes core-pulse { 0%, 100% { transform: scale(1); opacity: .8; } 50% { transform: scale(1.25); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="ui.html">UI</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 01</div>
+    <h1>Bakgrundseffekter</h1>
+    <p>Bakgrunden sätter stämningen för hela sajten. De bästa bakgrunderna är levande men aldrig i vägen — de rör sig långsamt, subtilt och reagerar gärna på besökaren.</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>Aurora / gradientblobbar</h2>
+      <p>Kraftigt blurrade färgcirklar som driver långsamt. Klassikern bakom nästan varje modern AI-startsida. Ren CSS.</p>
+    </div>
+    <div class="demo-stage aurora-stage">
+      <div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+      <div class="aurora-label">Norrsken i CSS</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Partikelnät</h2>
+      <p>Punkter som binds ihop med linjer när de är nära varandra — och dras mot muspekaren. Canvas + requestAnimationFrame.</p>
+    </div>
+    <div class="demo-stage net-stage">
+      <canvas id="net-canvas"></canvas>
+      <span class="net-hint">Rör musen över ytan</span>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>Punktrutnät med spotlight</h2>
+      <p>Ett stillsamt rutnät av punkter som tänds upp i cyan runt muspekaren, med hjälp av CSS <code>mask-image</code> och två custom properties.</p>
+    </div>
+    <div class="demo-stage dots-stage" id="dots">
+      <div class="dots-light"></div>
+      <div class="dots-glow"></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>Animerad gradient</h2>
+      <p>En stor gradient (400&nbsp;% av ytan) vars position animeras fram och tillbaka. Enkel, billig och effektfull som hero-bakgrund.</p>
+    </div>
+    <div class="demo-stage grad-stage">
+      <div class="grad-card">Innehållet vilar på glas ovanpå</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>Stjärnfält med djup</h2>
+      <p>Tre lager stjärnor som rör sig olika snabbt ger parallaxdjup — långsamma stjärnor långt bort, snabba nära.</p>
+    </div>
+    <div class="demo-stage stars-stage">
+      <canvas id="stars-canvas"></canvas>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">06</span>Roterande ljusstrimmor</h2>
+      <p>En <code>conic-gradient</code> med genomskinliga sektorer som sakta roterar bakom innehållet. Ger ett "premium"-skimmer utan JavaScript.</p>
+    </div>
+    <div class="demo-stage beams-stage">
+      <div class="beams"></div>
+      <div class="beams-core"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>Nästa kategori: <a href="mus.html">Museffekter →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- 02 Partikelnät --- */
+(function () {
+  var canvas = document.getElementById("net-canvas");
+  var ctx = canvas.getContext("2d");
+  var stage = canvas.parentElement;
+  var mouse = { x: -9999, y: -9999 };
+  var pts = [], W, H;
+
+  function resize() { W = canvas.width = stage.clientWidth; H = canvas.height = stage.clientHeight; }
+  resize();
+  window.addEventListener("resize", resize);
+
+  for (var i = 0; i < 55; i++) {
+    pts.push({ x: Math.random() * 900, y: Math.random() * 340,
+               vx: (Math.random() - .5) * .5, vy: (Math.random() - .5) * .5 });
+  }
+  stage.addEventListener("mousemove", function (e) {
+    var r = stage.getBoundingClientRect();
+    mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+  });
+  stage.addEventListener("mouseleave", function () { mouse.x = -9999; mouse.y = -9999; });
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    pts.forEach(function (p, i) {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > W) p.vx *= -1;
+      if (p.y < 0 || p.y > H) p.vy *= -1;
+      var dx = mouse.x - p.x, dy = mouse.y - p.y, d = Math.hypot(dx, dy);
+      if (d < 140 && d > .001) { p.x += dx / d * .6; p.y += dy / d * .6; }
+      ctx.beginPath(); ctx.arc(p.x, p.y, 1.8, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(233,233,242,.8)"; ctx.fill();
+      for (var j = i + 1; j < pts.length; j++) {
+        var q = pts[j], dist = Math.hypot(p.x - q.x, p.y - q.y);
+        if (dist < 100) {
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = "rgba(139,92,246," + (.35 * (1 - dist / 100)) + ")";
+          ctx.stroke();
+        }
+      }
+    });
+    if (!reduced) requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* --- 03 Spotlight-rutnät --- */
+(function () {
+  var el = document.getElementById("dots");
+  el.addEventListener("mousemove", function (e) {
+    var r = el.getBoundingClientRect();
+    el.style.setProperty("--mx", (e.clientX - r.left) + "px");
+    el.style.setProperty("--my", (e.clientY - r.top) + "px");
+  });
+  el.addEventListener("mouseleave", function () {
+    el.style.setProperty("--mx", "-300px");
+    el.style.setProperty("--my", "-300px");
+  });
+})();
+
+/* --- 05 Stjärnfält --- */
+(function () {
+  var canvas = document.getElementById("stars-canvas");
+  var ctx = canvas.getContext("2d");
+  var stage = canvas.parentElement;
+  var stars = [], W, H;
+
+  function resize() { W = canvas.width = stage.clientWidth; H = canvas.height = stage.clientHeight; }
+  resize();
+  window.addEventListener("resize", resize);
+
+  // tre djuplager: layer 0 = längst bort
+  for (var layer = 0; layer < 3; layer++) {
+    for (var i = 0; i < 60; i++) {
+      stars.push({
+        x: Math.random() * 1200, y: Math.random() * 400,
+        speed: (layer + 1) * .12,
+        size: (layer + 1) * .7,
+        alpha: .3 + layer * .3
+      });
+    }
+  }
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    stars.forEach(function (s) {
+      s.x -= s.speed;
+      if (s.x < 0) { s.x = W; s.y = Math.random() * H; }
+      ctx.beginPath(); ctx.arc(s.x % (W || 1), s.y % (H || 1), s.size, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(233,233,242," + s.alpha + ")"; ctx.fill();
+    });
+    if (!reduced) requestAnimationFrame(tick);
+  }
+  tick();
+})();
+</script>
+</body>
+</html>

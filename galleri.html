@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bildspel &amp; gallerier — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* "Bilder" = gradienter, så sajten är helt självständig utan bildfiler */
+  .ph { display: flex; align-items: flex-end; padding: 1rem; font-weight: 700; color: rgba(255,255,255,.9); }
+
+  /* --- 01 Crossfade --- */
+  .fade-stage { min-height: 340px; padding: 0; }
+  .fade-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  .fade-slide.active { opacity: 1; }
+  .fade-dots {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: .5rem;
+    z-index: 3;
+  }
+  .fade-dots button {
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,.35);
+    cursor: pointer;
+    transition: background .3s, transform .3s;
+  }
+  .fade-dots button.active { background: #fff; transform: scale(1.3); }
+
+  /* --- 02 Ken Burns --- */
+  .kb-stage { min-height: 340px; padding: 0; }
+  .kb-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+  }
+  .kb-slide.active { opacity: 1; }
+  .kb-slide .kb-img {
+    position: absolute;
+    inset: -8%;
+    transform-origin: center;
+  }
+  .kb-slide.active .kb-img { animation: kb-zoom 7s ease-out forwards; }
+  @keyframes kb-zoom {
+    from { transform: scale(1) translate(0, 0); }
+    to { transform: scale(1.15) translate(-2%, 2%); }
+  }
+  .kb-label { position: absolute; bottom: 1.2rem; left: 1.4rem; font-weight: 700; z-index: 2; }
+
+  /* --- 03 Coverflow --- */
+  .cover-stage { min-height: 380px; perspective: 1000px; flex-direction: column; gap: 1.6rem; overflow: hidden; }
+  .cover-row { position: relative; width: 100%; height: 250px; }
+  .cover-item {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 170px;
+    height: 240px;
+    margin-left: -85px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.2);
+    transition: transform .6s cubic-bezier(.22,1,.36,1), opacity .6s, filter .6s;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-end;
+    padding: 1rem;
+    font-weight: 700;
+  }
+
+  /* --- 04 Dragbar slider --- */
+  .drag-stage { min-height: 300px; padding: 0; align-items: stretch; }
+  .drag-track {
+    display: flex;
+    gap: 1rem;
+    padding: 2rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    cursor: grab;
+    scrollbar-width: none;
+    width: 100%;
+  }
+  .drag-track::-webkit-scrollbar { display: none; }
+  .drag-track.dragging { cursor: grabbing; scroll-snap-type: none; }
+  .drag-card {
+    flex: 0 0 230px;
+    height: 220px;
+    border-radius: 14px;
+    scroll-snap-align: center;
+    border: 1px solid rgba(255,255,255,.15);
+    user-select: none;
+  }
+
+  /* --- 05 Före/efter --- */
+  .ba-stage { min-height: 340px; padding: 0; }
+  .ba-wrap { position: absolute; inset: 0; overflow: hidden; }
+  .ba-before, .ba-after { position: absolute; inset: 0; }
+  .ba-before {
+    background: linear-gradient(140deg, #3a3a4a, #191924);
+    filter: grayscale(1);
+  }
+  .ba-after {
+    background: linear-gradient(140deg, #8b5cf6, #22d3ee);
+    clip-path: inset(0 calc(100% - var(--pos, 50%)) 0 0);
+  }
+  .ba-label { position: absolute; top: 1rem; font-family: var(--mono); font-size: .72rem; letter-spacing: .15em; padding: .3rem .6rem; border-radius: 6px; background: rgba(0,0,0,.5); }
+  .ba-before .ba-label { right: 1rem; }
+  .ba-after .ba-label { left: 1rem; }
+  .ba-handle {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: var(--pos, 50%);
+    width: 2px;
+    background: #fff;
+    cursor: ew-resize;
+    z-index: 5;
+  }
+  .ba-handle::after {
+    content: "◂ ▸";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    color: #0a0a12;
+    font-size: .7rem;
+    padding: .45rem .55rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    font-weight: 700;
+  }
+
+  /* --- 06 Lightbox-grid --- */
+  .lb-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: .8rem;
+    width: 100%;
+  }
+  .lb-thumb {
+    aspect-ratio: 4/3;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    cursor: zoom-in;
+    transition: transform .3s, filter .3s;
+  }
+  .lb-thumb:hover { transform: scale(1.04); filter: brightness(1.15); }
+  dialog.lb {
+    border: none;
+    border-radius: 18px;
+    padding: 0;
+    background: transparent;
+    max-width: min(90vw, 700px);
+    width: 100%;
+  }
+  dialog.lb::backdrop { background: rgba(5,5,10,.8); backdrop-filter: blur(6px); }
+  .lb-big {
+    aspect-ratio: 16/10;
+    border-radius: 18px;
+    display: flex;
+    align-items: flex-end;
+    padding: 1.5rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="ui.html">UI</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 06</div>
+    <h1>Bildspel &amp; gallerier</h1>
+    <p>Sex sätt att visa bilder med rörelse och interaktion. "Bilderna" här är gradienter så att demona funkar utan bildfiler — byt mot riktiga foton i skarpt läge.</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>Crossfade-bildspel</h2>
+      <p>Klassikern: bilderna tonar mjukt in i varandra, med prickar för manuell navigering. Byter automatiskt var fjärde sekund.</p>
+    </div>
+    <div class="demo-stage fade-stage" id="fade">
+      <div class="fade-slide ph active" style="background:linear-gradient(140deg,#4c1d95,#8b5cf6)">Skymning</div>
+      <div class="fade-slide ph" style="background:linear-gradient(140deg,#0e7490,#22d3ee)">Hav</div>
+      <div class="fade-slide ph" style="background:linear-gradient(140deg,#9d174d,#f472b6)">Neon</div>
+      <div class="fade-dots" id="fade-dots"></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Ken Burns</h2>
+      <p>Varje bild zoomar och driver långsamt medan den visas — dokumentärfilmens knep som ger stillbilder liv.</p>
+    </div>
+    <div class="demo-stage kb-stage" id="kb">
+      <div class="kb-slide active"><div class="kb-img" style="background:radial-gradient(circle at 30% 40%, #8b5cf6, #1e1b4b)"></div><span class="kb-label">Nebulosa</span></div>
+      <div class="kb-slide"><div class="kb-img" style="background:radial-gradient(circle at 70% 60%, #22d3ee, #082f49)"></div><span class="kb-label">Djuphav</span></div>
+      <div class="kb-slide"><div class="kb-img" style="background:radial-gradient(circle at 50% 20%, #f472b6, #500724)"></div><span class="kb-label">Gryning</span></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>Coverflow</h2>
+      <p>Mittkortet står i fokus, grannarna vinklas bakåt i 3D. Klicka på ett kort i kanten för att bläddra dit.</p>
+    </div>
+    <div class="demo-stage cover-stage">
+      <div class="cover-row" id="cover"></div>
+      <div class="caro-nav" style="display:flex;gap:1rem;z-index:2">
+        <button class="btn" id="cover-prev">←</button>
+        <button class="btn" id="cover-next">→</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>Dragbar slider</h2>
+      <p>Greppa och dra med musen (eller svep på mobil). <code>scroll-snap</code> ser till att korten alltid landar snyggt.</p>
+    </div>
+    <div class="demo-stage drag-stage">
+      <div class="drag-track" id="drag">
+        <div class="drag-card ph" style="background:linear-gradient(150deg,#4c1d95,#8b5cf6)">01</div>
+        <div class="drag-card ph" style="background:linear-gradient(150deg,#0e7490,#22d3ee)">02</div>
+        <div class="drag-card ph" style="background:linear-gradient(150deg,#9d174d,#f472b6)">03</div>
+        <div class="drag-card ph" style="background:linear-gradient(150deg,#1e3a8a,#60a5fa)">04</div>
+        <div class="drag-card ph" style="background:linear-gradient(150deg,#14532d,#4ade80)">05</div>
+        <div class="drag-card ph" style="background:linear-gradient(150deg,#7c2d12,#fb923c)">06</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>Före / efter-reglage</h2>
+      <p>Dra i handtaget för att jämföra två versioner — oumbärlig för retusch, redesigner och "så här blev det".</p>
+    </div>
+    <div class="demo-stage ba-stage">
+      <div class="ba-wrap" id="ba">
+        <div class="ba-before"><span class="ba-label">FÖRE</span></div>
+        <div class="ba-after"><span class="ba-label">EFTER</span></div>
+        <div class="ba-handle"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">06</span>Lightbox-galleri</h2>
+      <p>Klicka på en miniatyr så öppnas den i stort läge med mörklagd bakgrund — byggd på det inbyggda <code>&lt;dialog&gt;</code>-elementet.</p>
+    </div>
+    <div class="demo-stage" style="min-height:auto">
+      <div class="lb-grid" id="lb-grid">
+        <div class="lb-thumb" data-name="Violett dis" style="background:linear-gradient(140deg,#4c1d95,#a78bfa)"></div>
+        <div class="lb-thumb" data-name="Cyanflöde" style="background:linear-gradient(140deg,#0e7490,#67e8f9)"></div>
+        <div class="lb-thumb" data-name="Rosenkvarts" style="background:linear-gradient(140deg,#9d174d,#f9a8d4)"></div>
+        <div class="lb-thumb" data-name="Djupblå" style="background:linear-gradient(140deg,#1e3a8a,#93c5fd)"></div>
+      </div>
+      <dialog class="lb" id="lb">
+        <div class="lb-big" id="lb-big"></div>
+      </dialog>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>Nästa kategori: <a href="ui.html">UI &amp; mikrointeraktioner →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- 01 Crossfade --- */
+(function () {
+  var slides = document.querySelectorAll("#fade .fade-slide");
+  var dotsWrap = document.getElementById("fade-dots");
+  var idx = 0, timer;
+  slides.forEach(function (_, i) {
+    var b = document.createElement("button");
+    if (i === 0) b.classList.add("active");
+    b.addEventListener("click", function () { go(i); restart(); });
+    dotsWrap.appendChild(b);
+  });
+  var dots = dotsWrap.querySelectorAll("button");
+  function go(i) {
+    slides[idx].classList.remove("active"); dots[idx].classList.remove("active");
+    idx = i;
+    slides[idx].classList.add("active"); dots[idx].classList.add("active");
+  }
+  function restart() { clearInterval(timer); timer = setInterval(function () { go((idx + 1) % slides.length); }, 4000); }
+  restart();
+})();
+
+/* --- 02 Ken Burns --- */
+(function () {
+  var slides = document.querySelectorAll("#kb .kb-slide");
+  var idx = 0;
+  setInterval(function () {
+    slides[idx].classList.remove("active");
+    idx = (idx + 1) % slides.length;
+    slides[idx].classList.add("active");
+  }, 6000);
+})();
+
+/* --- 03 Coverflow --- */
+(function () {
+  var row = document.getElementById("cover");
+  var grads = [
+    "linear-gradient(160deg,#4c1d95,#8b5cf6)",
+    "linear-gradient(160deg,#0e7490,#22d3ee)",
+    "linear-gradient(160deg,#9d174d,#f472b6)",
+    "linear-gradient(160deg,#1e3a8a,#60a5fa)",
+    "linear-gradient(160deg,#14532d,#4ade80)"
+  ];
+  var names = ["Nova", "Bris", "Puls", "Frost", "Mossa"];
+  var current = 2;
+  var items = grads.map(function (g, i) {
+    var el = document.createElement("div");
+    el.className = "cover-item";
+    el.style.background = g;
+    el.textContent = names[i];
+    el.addEventListener("click", function () { current = i; layout(); });
+    row.appendChild(el);
+    return el;
+  });
+  function layout() {
+    items.forEach(function (el, i) {
+      var off = i - current;
+      var abs = Math.abs(off);
+      el.style.transform =
+        "translateX(" + off * 120 + "px) translateZ(" + (-abs * 120) + "px) rotateY(" + (off === 0 ? 0 : (off < 0 ? 40 : -40)) + "deg)";
+      el.style.zIndex = 10 - abs;
+      el.style.opacity = abs > 2 ? 0 : 1;
+      el.style.filter = "brightness(" + (off === 0 ? 1 : .55) + ")";
+    });
+  }
+  document.getElementById("cover-prev").addEventListener("click", function () { current = Math.max(0, current - 1); layout(); });
+  document.getElementById("cover-next").addEventListener("click", function () { current = Math.min(items.length - 1, current + 1); layout(); });
+  layout();
+})();
+
+/* --- 04 Dragbar slider --- */
+(function () {
+  var track = document.getElementById("drag");
+  var down = false, startX, startScroll;
+  track.addEventListener("pointerdown", function (e) {
+    down = true;
+    startX = e.clientX;
+    startScroll = track.scrollLeft;
+    track.classList.add("dragging");
+    track.setPointerCapture(e.pointerId);
+  });
+  track.addEventListener("pointermove", function (e) {
+    if (!down) return;
+    track.scrollLeft = startScroll - (e.clientX - startX);
+  });
+  ["pointerup", "pointercancel"].forEach(function (ev) {
+    track.addEventListener(ev, function () { down = false; track.classList.remove("dragging"); });
+  });
+})();
+
+/* --- 05 Före/efter --- */
+(function () {
+  var wrap = document.getElementById("ba");
+  var dragging = false;
+  function setPos(clientX) {
+    var r = wrap.getBoundingClientRect();
+    var pct = Math.min(Math.max((clientX - r.left) / r.width, 0), 1) * 100;
+    wrap.style.setProperty("--pos", pct + "%");
+  }
+  wrap.addEventListener("pointerdown", function (e) { dragging = true; setPos(e.clientX); wrap.setPointerCapture(e.pointerId); });
+  wrap.addEventListener("pointermove", function (e) { if (dragging) setPos(e.clientX); });
+  ["pointerup", "pointercancel"].forEach(function (ev) {
+    wrap.addEventListener(ev, function () { dragging = false; });
+  });
+})();
+
+/* --- 06 Lightbox --- */
+(function () {
+  var dlg = document.getElementById("lb");
+  var big = document.getElementById("lb-big");
+  document.querySelectorAll(".lb-thumb").forEach(function (t) {
+    t.addEventListener("click", function () {
+      big.style.background = t.style.background;
+      big.textContent = t.dataset.name;
+      dlg.showModal();
+    });
+  });
+  dlg.addEventListener("click", function () { dlg.close(); });
+})();
+</script>
+</body>
+</html>

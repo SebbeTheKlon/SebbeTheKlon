@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Effektverkstan — ett bibliotek av webbeffekter</title>
+<meta name="description" content="Ett levande bibliotek av de bästa interaktiva effekterna för moderna hemsidor: bakgrunder, museffekter, 3D, scroll, text, gallerier och UI-detaljer.">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* --- Hero --- */
+  .hero {
+    position: relative;
+    min-height: 88vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+  }
+  #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(139, 92, 246, .16), transparent 70%);
+    pointer-events: none;
+  }
+  .hero-inner { position: relative; z-index: 2; padding: 2rem; max-width: 760px; }
+  .hero .kicker {
+    font-family: var(--mono);
+    font-size: .8rem;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--cyan);
+  }
+  .hero h1 {
+    font-size: clamp(2.6rem, 7vw, 4.6rem);
+    line-height: 1.05;
+    letter-spacing: -.03em;
+    margin: 1rem 0 1.2rem;
+  }
+  .hero h1 .grad {
+    background: linear-gradient(120deg, var(--violet), var(--cyan), var(--pink), var(--violet));
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: hue-slide 8s linear infinite;
+  }
+  @keyframes hue-slide { to { background-position: 300% 0; } }
+  .hero p { color: var(--muted); font-size: 1.08rem; max-width: 540px; margin: 0 auto 2rem; }
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--muted);
+    font-size: .78rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    animation: hint-bob 2.2s ease-in-out infinite;
+  }
+  @keyframes hint-bob { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, 8px); } }
+
+  /* --- Kategorirutnät (bento) --- */
+  .cats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .cat {
+    position: relative;
+    display: block;
+    text-decoration: none;
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    padding: 1.6rem;
+    min-height: 190px;
+    overflow: hidden;
+    transition: transform .35s cubic-bezier(.22, 1, .36, 1), border-color .35s;
+  }
+  .cat::before {
+    /* spotlight som följer musen — koordinater sätts i JS */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), rgba(139, 92, 246, .18), transparent 65%);
+    opacity: 0;
+    transition: opacity .35s;
+    pointer-events: none;
+  }
+  .cat:hover { transform: translateY(-4px); border-color: rgba(139, 92, 246, .45); }
+  .cat:hover::before { opacity: 1; }
+  .cat .icon { font-size: 1.6rem; }
+  .cat h2 { font-size: 1.15rem; margin: .7rem 0 .3rem; letter-spacing: -.01em; }
+  .cat p { color: var(--muted); font-size: .88rem; }
+  .cat .arrow {
+    position: absolute;
+    top: 1.3rem;
+    right: 1.3rem;
+    color: var(--muted);
+    transition: transform .3s, color .3s;
+  }
+  .cat:hover .arrow { transform: translate(4px, -4px); color: var(--cyan); }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="ui.html">UI</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <canvas id="hero-canvas"></canvas>
+  <div class="hero-inner">
+    <div class="kicker">Ett levande bibliotek</div>
+    <h1>Bygg hemsidor med <span class="grad">effekter som känns</span></h1>
+    <p>En byggverkstad med de bästa interaktiva och subtila effekterna som används på moderna sajter idag — bakgrunder, museffekter, 3D, scroll, text, gallerier och mikrointeraktioner. Allt i ren HTML, CSS och JavaScript.</p>
+    <a class="btn" href="bakgrund.html">Utforska biblioteket →</a>
+  </div>
+  <div class="scroll-hint">Scrolla ↓</div>
+</section>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategorier</div>
+    <h1>Välj din verktygslåda</h1>
+    <p>Sju kategorier, varje sida fylld med levande demos du kan känna på — och återanvända i egna projekt.</p>
+  </div>
+
+  <div class="cats">
+    <a class="cat reveal" href="bakgrund.html">
+      <span class="icon">🌌</span><span class="arrow">↗</span>
+      <h2>Bakgrundseffekter</h2>
+      <p>Aurora, partikelnät, stjärnfält, animerade gradienter och rutnät som reagerar på musen.</p>
+    </a>
+    <a class="cat reveal" href="mus.html">
+      <span class="icon">🖱️</span><span class="arrow">↗</span>
+      <h2>Museffekter</h2>
+      <p>Egen muspekare, magnetiska knappar, spotlight-kort och partikelspår efter pekaren.</p>
+    </a>
+    <a class="cat reveal" href="3d.html">
+      <span class="icon">🧊</span><span class="arrow">↗</span>
+      <h2>3D-effekter</h2>
+      <p>Flip-kort, tilt med parallaxlager, roterande kub och 3D-karusell — helt i CSS.</p>
+    </a>
+    <a class="cat reveal" href="scroll.html">
+      <span class="icon">📜</span><span class="arrow">↗</span>
+      <h2>Scroll-effekter</h2>
+      <p>Reveal-animationer, parallax, staplade kort, progressmätare och text som fylls i.</p>
+    </a>
+    <a class="cat reveal" href="text.html">
+      <span class="icon">✍️</span><span class="arrow">↗</span>
+      <h2>Texteffekter</h2>
+      <p>Skrivmaskin, scramble/avkodning, glitch, gradienter, marquee och bokstavsanimationer.</p>
+    </a>
+    <a class="cat reveal" href="galleri.html">
+      <span class="icon">🖼️</span><span class="arrow">↗</span>
+      <h2>Bildspel &amp; gallerier</h2>
+      <p>Crossfade, Ken Burns, coverflow i 3D, dragbar slider och före/efter-jämförelse.</p>
+    </a>
+    <a class="cat reveal" href="ui.html">
+      <span class="icon">✨</span><span class="arrow">↗</span>
+      <h2>UI &amp; mikrointeraktioner</h2>
+      <p>Glassmorphism, glödande ramar, knapp-effekter, skeletons, räknare och bento-layout.</p>
+    </a>
+  </div>
+</main>
+
+<footer class="site-foot">
+  <span>Effektverkstan — byggd i ren HTML/CSS/JS, inga beroenden.</span>
+  <a href="index.html">Till toppen ↑</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- Hero: partikelnät som reagerar på musen --- */
+(function () {
+  var canvas = document.getElementById("hero-canvas");
+  var ctx = canvas.getContext("2d");
+  var particles = [];
+  var mouse = { x: -9999, y: -9999 };
+  var W, H;
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  var COUNT = Math.min(90, Math.floor(window.innerWidth / 14));
+  for (var i = 0; i < COUNT; i++) {
+    particles.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      vx: (Math.random() - .5) * .4,
+      vy: (Math.random() - .5) * .4,
+      r: Math.random() * 1.6 + .6
+    });
+  }
+
+  canvas.parentElement.addEventListener("mousemove", function (e) {
+    var rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  });
+  canvas.parentElement.addEventListener("mouseleave", function () {
+    mouse.x = -9999; mouse.y = -9999;
+  });
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > W) p.vx *= -1;
+      if (p.y < 0 || p.y > H) p.vy *= -1;
+
+      // dras svagt mot musen
+      var dx = mouse.x - p.x, dy = mouse.y - p.y;
+      var d = Math.hypot(dx, dy);
+      if (d < 160 && d > 0.001) { p.x += dx / d * .5; p.y += dy / d * .5; }
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(139,92,246,.7)";
+      ctx.fill();
+
+      // linjer mellan närliggande partiklar
+      for (var j = i + 1; j < particles.length; j++) {
+        var q = particles[j];
+        var dist = Math.hypot(p.x - q.x, p.y - q.y);
+        if (dist < 110) {
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.strokeStyle = "rgba(34,211,238," + (0.22 * (1 - dist / 110)) + ")";
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+    }
+    if (!reduced) requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* --- Kategorikort: spotlight som följer musen --- */
+document.querySelectorAll(".cat").forEach(function (card) {
+  card.addEventListener("mousemove", function (e) {
+    var r = card.getBoundingClientRect();
+    card.style.setProperty("--mx", (e.clientX - r.left) + "px");
+    card.style.setProperty("--my", (e.clientY - r.top) + "px");
+  });
+});
+</script>
+</body>
+</html>

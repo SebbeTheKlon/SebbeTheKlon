@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Museffekter — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* --- 01 Egen muspekare (aktiveras per demo-yta) --- */
+  .cursor-stage { min-height: 300px; cursor: none; flex-direction: column; gap: 1.5rem; }
+  .cursor-dot, .cursor-ring {
+    position: absolute;
+    top: 0; left: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity .2s;
+  }
+  .cursor-stage:hover .cursor-dot, .cursor-stage:hover .cursor-ring { opacity: 1; }
+  .cursor-dot { width: 8px; height: 8px; background: var(--cyan); }
+  .cursor-ring {
+    width: 38px; height: 38px;
+    border: 1.5px solid rgba(139,92,246,.8);
+    transition: opacity .2s, width .25s, height .25s, border-color .25s;
+  }
+  .cursor-stage.hovering .cursor-ring { width: 60px; height: 60px; border-color: var(--pink); }
+  .cursor-stage a { color: var(--text); font-size: 1.3rem; font-weight: 600; text-decoration: none; cursor: none; }
+
+  /* --- 02 Magnetiska knappar --- */
+  .magnet-stage { min-height: 300px; gap: 2rem; flex-wrap: wrap; }
+  .magnet {
+    padding: 1rem 2.2rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border-color .3s;
+    will-change: transform;
+  }
+  .magnet:hover { border-color: var(--violet); }
+  .magnet span { display: inline-block; will-change: transform; }
+
+  /* --- 03 Spotlight-kort --- */
+  .spot-stage { min-height: 320px; gap: 1rem; flex-wrap: wrap; }
+  .spot-card {
+    position: relative;
+    width: 240px;
+    padding: 1.5rem;
+    border-radius: 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .spot-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(280px circle at var(--mx, 50%) var(--my, 50%), rgba(34,211,238,.15), transparent 60%);
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .spot-card:hover::before { opacity: 1; }
+  .spot-card h3 { font-size: 1rem; margin-bottom: .4rem; position: relative; }
+  .spot-card p { font-size: .85rem; color: var(--muted); position: relative; }
+
+  /* --- 04 Tilt-kort --- */
+  .tilt-stage { min-height: 360px; perspective: 900px; }
+  .tilt-card {
+    width: 280px;
+    padding: 2rem;
+    border-radius: 18px;
+    background: linear-gradient(145deg, rgba(139,92,246,.18), rgba(34,211,238,.08));
+    border: 1px solid rgba(139,92,246,.35);
+    transform-style: preserve-3d;
+    transition: transform .15s ease-out;
+    text-align: center;
+  }
+  .tilt-card .glare {
+    position: absolute;
+    inset: 0;
+    border-radius: 18px;
+    background: radial-gradient(300px circle at var(--gx, 50%) var(--gy, 50%), rgba(255,255,255,.14), transparent 60%);
+    pointer-events: none;
+  }
+  .tilt-card h3 { font-size: 1.3rem; transform: translateZ(40px); }
+  .tilt-card p { color: var(--muted); font-size: .88rem; margin-top: .5rem; transform: translateZ(25px); }
+
+  /* --- 05 Partikelspår --- */
+  .trail-stage { min-height: 320px; padding: 0; cursor: crosshair; }
+  .trail-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .trail-hint { position: relative; z-index: 2; color: var(--muted); font-size: .85rem; pointer-events: none; }
+
+  /* --- 06 Bild följer länk-hover --- */
+  .peek-stage { min-height: 340px; flex-direction: column; align-items: stretch; justify-content: center; }
+  .peek-list { list-style: none; max-width: 480px; margin: 0 auto; width: 100%; }
+  .peek-list li { border-bottom: 1px solid var(--border); }
+  .peek-list a {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 1.1rem .5rem;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 1.15rem;
+    font-weight: 600;
+    transition: padding-left .3s, color .3s;
+  }
+  .peek-list a small { color: var(--muted); font-weight: 400; font-size: .8rem; }
+  .peek-list a:hover { padding-left: 1rem; color: var(--cyan); }
+  .peek-img {
+    position: absolute;
+    width: 190px;
+    height: 130px;
+    border-radius: 12px;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(.85) rotate(-4deg);
+    transition: opacity .25s, transform .25s;
+    z-index: 5;
+    border: 1px solid rgba(255,255,255,.2);
+  }
+  .peek-img.show { opacity: 1; transform: scale(1) rotate(3deg); }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="ui.html">UI</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 02</div>
+    <h1>Museffekter</h1>
+    <p>Pekaren är besökarens hand på sajten. Små reaktioner på musens rörelser — magnetism, spotlight, spår — gör att gränssnittet känns levande och taktilt.</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>Egen muspekare</h2>
+      <p>En punkt som följer musen exakt och en ring som släpar efter mjukt (lerp). Ringen växer över klickbara element.</p>
+    </div>
+    <div class="demo-stage cursor-stage" id="cursor-stage">
+      <div class="cursor-dot"></div>
+      <div class="cursor-ring"></div>
+      <a href="#" onclick="return false">Håll musen över mig</a>
+      <a href="#" onclick="return false">Eller mig</a>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Magnetiska knappar</h2>
+      <p>Knappen dras mot muspekaren när den kommer nära, och fjädrar tillbaka när musen lämnar. Texten rör sig lite mer än knappen för extra djup.</p>
+    </div>
+    <div class="demo-stage magnet-stage">
+      <button class="magnet"><span>Dra i mig</span></button>
+      <button class="magnet"><span>Magnetisk ✦</span></button>
+      <button class="magnet"><span>Kom närmare</span></button>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>Spotlight-kort</h2>
+      <p>Ett mjukt ljussken följer musen inuti kortet. Populariserad av bl.a. Linear och Vercel — subtil men gör stor skillnad.</p>
+    </div>
+    <div class="demo-stage spot-stage">
+      <div class="spot-card"><h3>Snabbt</h3><p>Ljuset renderas med en enkel radial-gradient — inga bibliotek behövs.</p></div>
+      <div class="spot-card"><h3>Subtilt</h3><p>Effekten syns bara vid hover och stör aldrig läsbarheten.</p></div>
+      <div class="spot-card"><h3>Skalbart</h3><p>Samma två rader JS driver hur många kort som helst.</p></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>Tilt-kort med glans</h2>
+      <p>Kortet lutar sig i 3D efter musens position, och en glansreflex glider över ytan. Rubriken ligger på ett eget djuplager med <code>translateZ</code>.</p>
+    </div>
+    <div class="demo-stage tilt-stage">
+      <div class="tilt-card" id="tilt">
+        <div class="glare"></div>
+        <h3>Holografiskt kort</h3>
+        <p>Luta mig åt alla håll — texten svävar ovanför ytan.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>Partikelspår</h2>
+      <p>Små glödande partiklar föds vid pekaren, driver iväg och tonar ut. Canvas-baserat och billigt för GPU:n.</p>
+    </div>
+    <div class="demo-stage trail-stage" id="trail-stage">
+      <canvas id="trail-canvas"></canvas>
+      <span class="trail-hint">Rita med musen</span>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">06</span>Bildförhandsvisning vid hover</h2>
+      <p>En liten bild dyker upp och följer musen när du hovrar över länkar i en lista — vanligt i moderna portfolios.</p>
+    </div>
+    <div class="demo-stage peek-stage" id="peek-stage">
+      <ul class="peek-list">
+        <li><a href="#" onclick="return false" data-grad="linear-gradient(135deg,#8b5cf6,#3b0764)">Projekt Nova <small>2026</small></a></li>
+        <li><a href="#" onclick="return false" data-grad="linear-gradient(135deg,#22d3ee,#0e7490)">Studio Bortom <small>2025</small></a></li>
+        <li><a href="#" onclick="return false" data-grad="linear-gradient(135deg,#f472b6,#9d174d)">Neonträdgård <small>2025</small></a></li>
+      </ul>
+      <div class="peek-img" id="peek-img"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>Nästa kategori: <a href="3d.html">3D-effekter →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- 01 Egen muspekare med lerp --- */
+(function () {
+  var stage = document.getElementById("cursor-stage");
+  var dot = stage.querySelector(".cursor-dot");
+  var ring = stage.querySelector(".cursor-ring");
+  var mx = 0, my = 0, rx = 0, ry = 0, raf = null;
+
+  stage.addEventListener("mousemove", function (e) {
+    var r = stage.getBoundingClientRect();
+    mx = e.clientX - r.left; my = e.clientY - r.top;
+    if (!raf) loop();
+  });
+  stage.querySelectorAll("a").forEach(function (a) {
+    a.addEventListener("mouseenter", function () { stage.classList.add("hovering"); });
+    a.addEventListener("mouseleave", function () { stage.classList.remove("hovering"); });
+  });
+  function loop() {
+    rx += (mx - rx) * .14; ry += (my - ry) * .14; // ringen släpar efter
+    dot.style.transform = "translate(" + (mx - 4) + "px," + (my - 4) + "px)";
+    var half = ring.offsetWidth / 2;
+    ring.style.transform = "translate(" + (rx - half) + "px," + (ry - half) + "px)";
+    raf = requestAnimationFrame(loop);
+  }
+})();
+
+/* --- 02 Magnetiska knappar --- */
+document.querySelectorAll(".magnet").forEach(function (btn) {
+  var label = btn.querySelector("span");
+  btn.addEventListener("mousemove", function (e) {
+    var r = btn.getBoundingClientRect();
+    var x = e.clientX - r.left - r.width / 2;
+    var y = e.clientY - r.top - r.height / 2;
+    btn.style.transform = "translate(" + x * .35 + "px," + y * .35 + "px)";
+    label.style.transform = "translate(" + x * .15 + "px," + y * .15 + "px)";
+  });
+  btn.addEventListener("mouseleave", function () {
+    btn.style.transition = "transform .5s cubic-bezier(.22,1.6,.36,1)";
+    label.style.transition = "transform .5s cubic-bezier(.22,1.6,.36,1)";
+    btn.style.transform = ""; label.style.transform = "";
+    setTimeout(function () { btn.style.transition = ""; label.style.transition = ""; }, 500);
+  });
+});
+
+/* --- 03 Spotlight-kort --- */
+document.querySelectorAll(".spot-card").forEach(function (card) {
+  card.addEventListener("mousemove", function (e) {
+    var r = card.getBoundingClientRect();
+    card.style.setProperty("--mx", (e.clientX - r.left) + "px");
+    card.style.setProperty("--my", (e.clientY - r.top) + "px");
+  });
+});
+
+/* --- 04 Tilt-kort --- */
+(function () {
+  var card = document.getElementById("tilt");
+  card.addEventListener("mousemove", function (e) {
+    var r = card.getBoundingClientRect();
+    var px = (e.clientX - r.left) / r.width;   // 0..1
+    var py = (e.clientY - r.top) / r.height;
+    var rotY = (px - .5) * 22;
+    var rotX = (py - .5) * -22;
+    card.style.transform = "rotateX(" + rotX + "deg) rotateY(" + rotY + "deg)";
+    card.style.setProperty("--gx", px * 100 + "%");
+    card.style.setProperty("--gy", py * 100 + "%");
+  });
+  card.addEventListener("mouseleave", function () {
+    card.style.transition = "transform .6s cubic-bezier(.22,1,.36,1)";
+    card.style.transform = "rotateX(0) rotateY(0)";
+    setTimeout(function () { card.style.transition = "transform .15s ease-out"; }, 600);
+  });
+})();
+
+/* --- 05 Partikelspår --- */
+(function () {
+  var canvas = document.getElementById("trail-canvas");
+  var ctx = canvas.getContext("2d");
+  var stage = document.getElementById("trail-stage");
+  var parts = [], W, H;
+  var colors = ["#8b5cf6", "#22d3ee", "#f472b6"];
+
+  function resize() { W = canvas.width = stage.clientWidth; H = canvas.height = stage.clientHeight; }
+  resize();
+  window.addEventListener("resize", resize);
+
+  stage.addEventListener("mousemove", function (e) {
+    var r = stage.getBoundingClientRect();
+    for (var i = 0; i < 3; i++) {
+      parts.push({
+        x: e.clientX - r.left, y: e.clientY - r.top,
+        vx: (Math.random() - .5) * 1.6, vy: (Math.random() - .5) * 1.6 - .4,
+        life: 1, r: Math.random() * 3 + 1.5,
+        c: colors[Math.floor(Math.random() * colors.length)]
+      });
+    }
+  });
+
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    parts = parts.filter(function (p) { return p.life > 0; });
+    parts.forEach(function (p) {
+      p.x += p.vx; p.y += p.vy; p.life -= .02;
+      ctx.globalAlpha = Math.max(p.life, 0);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * p.life, 0, Math.PI * 2);
+      ctx.fillStyle = p.c;
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* --- 06 Bild följer länk-hover --- */
+(function () {
+  var stage = document.getElementById("peek-stage");
+  var img = document.getElementById("peek-img");
+  stage.querySelectorAll(".peek-list a").forEach(function (a) {
+    a.addEventListener("mouseenter", function () {
+      img.style.background = a.dataset.grad;
+      img.classList.add("show");
+    });
+    a.addEventListener("mouseleave", function () { img.classList.remove("show"); });
+  });
+  stage.addEventListener("mousemove", function (e) {
+    var r = stage.getBoundingClientRect();
+    img.style.left = (e.clientX - r.left + 24) + "px";
+    img.style.top = (e.clientY - r.top - 65) + "px";
+  });
+})();
+</script>
+</body>
+</html>

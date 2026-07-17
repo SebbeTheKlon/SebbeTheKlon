@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UI &amp; mikrointeraktioner — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* --- 01 Glassmorphism --- */
+  .glass-stage {
+    min-height: 320px;
+    background:
+      radial-gradient(280px circle at 25% 30%, rgba(139,92,246,.5), transparent 60%),
+      radial-gradient(320px circle at 75% 70%, rgba(34,211,238,.4), transparent 60%),
+      #0d0d19;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .glass {
+    width: 240px;
+    padding: 1.6rem;
+    border-radius: 18px;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.18);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 32px rgba(0,0,0,.3);
+  }
+  .glass h3 { font-size: 1rem; margin-bottom: .3rem; }
+  .glass p { font-size: .85rem; color: rgba(255,255,255,.7); }
+
+  /* --- 02 Glödande gradientram --- */
+  .glow-stage { min-height: 300px; gap: 2rem; flex-wrap: wrap; }
+  .glow-card {
+    position: relative;
+    width: 240px;
+    padding: 1.6rem;
+    border-radius: 16px;
+    background: var(--bg2);
+  }
+  .glow-card::before {
+    content: "";
+    position: absolute;
+    inset: -1.5px;
+    border-radius: 17px;
+    background: conic-gradient(from var(--a, 0deg), #8b5cf6, #22d3ee, #f472b6, #8b5cf6);
+    z-index: -1;
+    animation: spin-border 4s linear infinite;
+  }
+  @property --a { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+  @keyframes spin-border { to { --a: 360deg; } }
+  .glow-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: inherit;
+  }
+  .glow-card > * { position: relative; z-index: 1; }
+  .glow-card h3 { font-size: 1rem; margin-bottom: .3rem; }
+  .glow-card p { font-size: .85rem; color: var(--muted); }
+
+  /* --- 03 Knapp-effekter --- */
+  .btns-stage { min-height: 280px; gap: 1.5rem; flex-wrap: wrap; }
+  .btn-shine {
+    position: relative;
+    overflow: hidden;
+    padding: .8rem 1.8rem;
+    border-radius: 999px;
+    border: none;
+    background: var(--grad);
+    color: #fff;
+    font-weight: 600;
+    font-size: .95rem;
+    cursor: pointer;
+  }
+  .btn-shine::after {
+    content: "";
+    position: absolute;
+    top: 0; left: -80%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,.5), transparent);
+    transform: skewX(-20deg);
+    transition: left .6s;
+  }
+  .btn-shine:hover::after { left: 130%; }
+
+  .btn-ripple {
+    position: relative;
+    overflow: hidden;
+    padding: .8rem 1.8rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: .95rem;
+    cursor: pointer;
+  }
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(139,92,246,.5);
+    transform: scale(0);
+    animation: rip .6s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes rip { to { transform: scale(3); opacity: 0; } }
+
+  .btn-fill {
+    position: relative;
+    padding: .8rem 1.8rem;
+    border-radius: 999px;
+    border: 1px solid var(--cyan);
+    background: transparent;
+    color: var(--cyan);
+    font-size: .95rem;
+    cursor: pointer;
+    transition: color .35s;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .btn-fill::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--cyan);
+    transform: translateY(101%);
+    transition: transform .35s cubic-bezier(.22,1,.36,1);
+    z-index: -1;
+  }
+  .btn-fill:hover { color: #06232b; }
+  .btn-fill:hover::before { transform: translateY(0); }
+
+  /* --- 04 Skeleton loading --- */
+  .skel-stage { min-height: 280px; gap: 1.5rem; flex-wrap: wrap; }
+  .skel-card {
+    width: 250px;
+    padding: 1.3rem;
+    border-radius: 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+  }
+  .skel {
+    border-radius: 8px;
+    background: linear-gradient(90deg, rgba(255,255,255,.05) 25%, rgba(255,255,255,.13) 50%, rgba(255,255,255,.05) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s infinite;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .skel.img { height: 110px; margin-bottom: .9rem; }
+  .skel.line { height: 12px; margin-bottom: .6rem; }
+  .skel.line.short { width: 60%; }
+
+  /* --- 05 Räknare --- */
+  .count-stage { min-height: 240px; gap: clamp(1.5rem, 6vw, 4rem); flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat .num {
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    font-weight: 800;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-variant-numeric: tabular-nums;
+  }
+  .stat .lbl { color: var(--muted); font-size: .85rem; margin-top: .2rem; }
+
+  /* --- 06 Bento-layout --- */
+  .bento {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 110px;
+    gap: .9rem;
+    width: 100%;
+  }
+  .bento > div {
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    transition: transform .3s, border-color .3s, background .3s;
+    overflow: hidden;
+  }
+  .bento > div:hover { transform: translateY(-3px); border-color: rgba(139,92,246,.5); background: var(--card-hover); }
+  .bento h3 { font-size: .95rem; }
+  .bento p { font-size: .78rem; color: var(--muted); }
+  .b-wide { grid-column: span 2; }
+  .b-tall { grid-row: span 2; }
+  .b-hero {
+    grid-column: span 2;
+    grid-row: span 2;
+    background: linear-gradient(150deg, rgba(139,92,246,.25), rgba(34,211,238,.1)) !important;
+    justify-content: center !important;
+  }
+  .b-hero h3 { font-size: 1.3rem; }
+  @media (max-width: 640px) {
+    .bento { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* --- 07 Toggle --- */
+  .toggle-stage { min-height: 220px; gap: 2.5rem; flex-wrap: wrap; }
+  .tgl { position: relative; width: 62px; height: 34px; cursor: pointer; }
+  .tgl input { opacity: 0; width: 0; height: 0; }
+  .tgl .track {
+    position: absolute;
+    inset: 0;
+    border-radius: 999px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid var(--border);
+    transition: background .35s, border-color .35s, box-shadow .35s;
+  }
+  .tgl .thumb {
+    position: absolute;
+    top: 4px; left: 4px;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: #fff;
+    transition: transform .35s cubic-bezier(.22,1.4,.36,1);
+  }
+  .tgl input:checked ~ .track {
+    background: var(--violet);
+    border-color: var(--violet);
+    box-shadow: 0 0 18px rgba(139,92,246,.6);
+  }
+  .tgl input:checked ~ .thumb { transform: translateX(28px); }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="ui.html">UI</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 07</div>
+    <h1>UI &amp; mikrointeraktioner</h1>
+    <p>De små detaljerna som skiljer en bra sajt från en fantastisk: material, ljus, feedback vid klick och layoutmönster som känns moderna.</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>Glassmorphism</h2>
+      <p>Frostat glas med <code>backdrop-filter: blur()</code> — fungerar bäst ovanpå färgstarka bakgrunder som ger blurret något att jobba med.</p>
+    </div>
+    <div class="demo-stage glass-stage">
+      <div class="glass"><h3>Frostat glas</h3><p>Bakgrundens färger lyser igenom och blurras.</p></div>
+      <div class="glass"><h3>Lager på lager</h3><p>Fler glasytor ovanpå varandra bygger djup.</p></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Roterande gradientram</h2>
+      <p>En <code>conic-gradient</code> snurrar runt kortets kant med hjälp av <code>@property</code>-animerade vinklar. AI-produkternas favoritdetalj just nu.</p>
+    </div>
+    <div class="demo-stage glow-stage">
+      <div class="glow-card"><h3>Levande ram</h3><p>Gradienten roterar oändligt runt kortet.</p></div>
+      <div class="glow-card"><h3>Ren CSS</h3><p>Ingen JavaScript — bara två pseudo-element.</p></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>Knapp-effekter</h2>
+      <p>Tre beprövade mönster: glans som sveper förbi, ripple från klickpunkten och en fyllning som stiger underifrån.</p>
+    </div>
+    <div class="demo-stage btns-stage">
+      <button class="btn-shine">Svepande glans</button>
+      <button class="btn-ripple" id="ripple-btn">Klicka för ripple</button>
+      <button class="btn-fill">Stigande fyllning</button>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>Skeleton loading</h2>
+      <p>Skimrande platshållare som visar sidans form medan innehållet laddar — upplevs mycket snabbare än en spinner.</p>
+    </div>
+    <div class="demo-stage skel-stage">
+      <div class="skel-card"><div class="skel img"></div><div class="skel line"></div><div class="skel line"></div><div class="skel line short"></div></div>
+      <div class="skel-card"><div class="skel img"></div><div class="skel line"></div><div class="skel line"></div><div class="skel line short"></div></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>Räknare som tickar upp</h2>
+      <p>Siffrorna räknar upp med avtagande hastighet (easing) när de scrollas in i vyn.</p>
+    </div>
+    <div class="demo-stage count-stage">
+      <div class="stat"><div class="num" data-target="128" data-suffix="+">0</div><div class="lbl">Projekt</div></div>
+      <div class="stat"><div class="num" data-target="97" data-suffix="%">0</div><div class="lbl">Nöjda kunder</div></div>
+      <div class="stat"><div class="num" data-target="42" data-suffix="k">0</div><div class="lbl">Kodrader</div></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">06</span>Bento-layout</h2>
+      <p>Rutnät med olika stora celler, som en japansk bento-låda. Dagens dominerande mönster för feature-sektioner.</p>
+    </div>
+    <div class="demo-stage" style="min-height:auto">
+      <div class="bento">
+        <div class="b-hero"><h3>Huvudfunktion</h3><p>Den största cellen drar blicken först.</p></div>
+        <div><h3>Snabb</h3><p>Liten cell</p></div>
+        <div><h3>Säker</h3><p>Liten cell</p></div>
+        <div class="b-wide"><h3>Bred cell</h3><p>Två kolumner för mer innehåll</p></div>
+        <div class="b-tall" style="justify-content:center"><h3>Hög cell</h3><p>Två rader — bra för listor eller en bild</p></div>
+        <div><h3>Flexibel</h3><p>Liten cell</p></div>
+        <div class="b-wide"><h3>Avslut</h3><p>Bred cell balanserar raden</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">07</span>Toggle med studs</h2>
+      <p>En strömbrytare med överskjutande fjädring (<code>cubic-bezier</code> över 1) och glöd i aktivt läge.</p>
+    </div>
+    <div class="demo-stage toggle-stage">
+      <label class="tgl"><input type="checkbox" checked><span class="track"></span><span class="thumb"></span></label>
+      <label class="tgl"><input type="checkbox"><span class="track"></span><span class="thumb"></span></label>
+      <label class="tgl"><input type="checkbox"><span class="track"></span><span class="thumb"></span></label>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>Tillbaka till början: <a href="bakgrund.html">Bakgrundseffekter →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- 03 Ripple --- */
+document.getElementById("ripple-btn").addEventListener("click", function (e) {
+  var btn = e.currentTarget;
+  var r = btn.getBoundingClientRect();
+  var rip = document.createElement("span");
+  var size = Math.max(r.width, r.height);
+  rip.className = "ripple";
+  rip.style.width = rip.style.height = size + "px";
+  rip.style.left = (e.clientX - r.left - size / 2) + "px";
+  rip.style.top = (e.clientY - r.top - size / 2) + "px";
+  btn.appendChild(rip);
+  setTimeout(function () { rip.remove(); }, 650);
+});
+
+/* --- 05 Räknare --- */
+(function () {
+  var nums = document.querySelectorAll(".num");
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (!e.isIntersecting) return;
+      io.unobserve(e.target);
+      var el = e.target;
+      var target = +el.dataset.target;
+      var suffix = el.dataset.suffix || "";
+      var start = performance.now();
+      var dur = 1600;
+      function step(now) {
+        var t = Math.min((now - start) / dur, 1);
+        var eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = Math.round(target * eased) + suffix;
+        if (t < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
+  }, { threshold: .6 });
+  nums.forEach(function (n) { io.observe(n); });
+})();
+</script>
+</body>
+</html>
