@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D-effekter — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* --- 01 Flip-kort --- */
+  .flip-stage { min-height: 340px; gap: 2rem; flex-wrap: wrap; perspective: 1000px; }
+  .flip {
+    width: 220px;
+    height: 280px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform .8s cubic-bezier(.4, .1, .2, 1);
+    cursor: pointer;
+  }
+  .flip:hover, .flip:focus-visible { transform: rotateY(180deg); }
+  .flip-face {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    padding: 1.5rem;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .flip-front { background: linear-gradient(160deg, #16162a, #0d0d19); }
+  .flip-front .big { font-size: 2.4rem; }
+  .flip-back {
+    background: linear-gradient(160deg, rgba(139,92,246,.35), rgba(34,211,238,.2));
+    transform: rotateY(180deg);
+  }
+  .flip-face p { font-size: .85rem; color: var(--muted); }
+  .flip-back p { color: var(--text); }
+
+  /* --- 02 Roterande kub --- */
+  .cube-stage { min-height: 380px; perspective: 800px; }
+  .cube {
+    width: 150px;
+    height: 150px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: cube-spin 14s linear infinite;
+  }
+  @keyframes cube-spin {
+    from { transform: rotateX(-18deg) rotateY(0); }
+    to { transform: rotateX(-18deg) rotateY(360deg); }
+  }
+  .cube-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: .85rem;
+    letter-spacing: .1em;
+    border: 1px solid rgba(139,92,246,.5);
+    background: rgba(139,92,246,.08);
+    backdrop-filter: blur(2px);
+  }
+  .cube-face:nth-child(1) { transform: rotateY(0deg) translateZ(75px); }
+  .cube-face:nth-child(2) { transform: rotateY(90deg) translateZ(75px); }
+  .cube-face:nth-child(3) { transform: rotateY(180deg) translateZ(75px); }
+  .cube-face:nth-child(4) { transform: rotateY(-90deg) translateZ(75px); }
+  .cube-face:nth-child(5) { transform: rotateX(90deg) translateZ(75px); }
+  .cube-face:nth-child(6) { transform: rotateX(-90deg) translateZ(75px); }
+
+  /* --- 03 3D-karusell --- */
+  .caro-stage { min-height: 400px; perspective: 1100px; flex-direction: column; gap: 2rem; }
+  .caro {
+    position: relative;
+    width: 200px;
+    height: 260px;
+    transform-style: preserve-3d;
+    transition: transform .8s cubic-bezier(.35, .1, .25, 1);
+  }
+  .caro-item {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.18);
+    display: flex;
+    align-items: flex-end;
+    padding: 1.2rem;
+    font-weight: 700;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .caro-nav { display: flex; gap: 1rem; z-index: 2; }
+
+  /* --- 04 Parallaxlager-kort --- */
+  .layers-stage { min-height: 380px; perspective: 1000px; }
+  .layers-card {
+    width: 300px;
+    height: 220px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform .15s ease-out;
+    border-radius: 18px;
+    background: linear-gradient(150deg, #131327, #0a0a14);
+    border: 1px solid var(--border);
+  }
+  .layers-card .l {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .l-bg {
+    inset: 20px;
+    border: 1px dashed rgba(139,92,246,.4);
+    border-radius: 12px;
+    transform: translateZ(20px);
+  }
+  .l-mid {
+    inset: 0;
+    font-size: 3rem;
+    transform: translateZ(50px);
+  }
+  .l-top {
+    left: 0; right: 0; bottom: 22px;
+    font-family: var(--mono);
+    font-size: .75rem;
+    letter-spacing: .2em;
+    color: var(--cyan);
+    transform: translateZ(80px);
+  }
+
+  /* --- 05 Isometriskt hover-lyft --- */
+  .iso-stage { min-height: 340px; gap: 1.6rem; flex-wrap: wrap; }
+  .iso {
+    width: 160px;
+    height: 160px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #191932, #0d0d1c);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: .5rem;
+    transform: rotateX(45deg) rotateZ(-45deg);
+    transform-style: preserve-3d;
+    transition: transform .4s cubic-bezier(.22, 1, .36, 1), box-shadow .4s;
+    box-shadow: -8px 8px 0 rgba(139, 92, 246, .25);
+    cursor: pointer;
+  }
+  .iso:hover {
+    transform: rotateX(45deg) rotateZ(-45deg) translateZ(28px);
+    box-shadow: -20px 20px 0 rgba(139, 92, 246, .35), -20px 20px 40px rgba(0,0,0,.5);
+  }
+  .iso .icon { font-size: 1.8rem; }
+  .iso small { color: var(--muted); font-family: var(--mono); font-size: .7rem; letter-spacing: .1em; }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="ui.html">UI</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 03</div>
+    <h1>3D-effekter</h1>
+    <p>Med <code>perspective</code>, <code>transform-style: preserve-3d</code> och <code>translateZ</code> kan du bygga förvånansvärt mycket 3D helt utan WebGL. Här är de mönster som används mest.</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>Flip-kort</h2>
+      <p>Kortet vänder sig 180° vid hover och visar baksidan. Nyckeln är <code>backface-visibility: hidden</code> på båda sidorna.</p>
+    </div>
+    <div class="demo-stage flip-stage">
+      <div class="flip" tabindex="0">
+        <div class="flip-face flip-front"><span class="big">🃏</span><strong>Framsida</strong><p>Håll musen över kortet</p></div>
+        <div class="flip-face flip-back"><span class="big">🎉</span><strong>Baksida</strong><p>Här kan du gömma detaljer, priser eller bonusinnehåll.</p></div>
+      </div>
+      <div class="flip" tabindex="0">
+        <div class="flip-face flip-front"><span class="big">🔒</span><strong>Hemlighet</strong><p>Vad döljer sig bakom?</p></div>
+        <div class="flip-face flip-back"><span class="big">🗝️</span><strong>Avslöjat</strong><p>Flip fungerar även med tangentbordsfokus.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Roterande kub</h2>
+      <p>Sex ytor placerade med <code>rotateY/rotateX + translateZ</code> bildar en kub som roterar oändligt. Bra som dekorativt blickfång.</p>
+    </div>
+    <div class="demo-stage cube-stage">
+      <div class="cube">
+        <div class="cube-face">HTML</div>
+        <div class="cube-face">CSS</div>
+        <div class="cube-face">JS</div>
+        <div class="cube-face">SVG</div>
+        <div class="cube-face">3D</div>
+        <div class="cube-face">FX</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>3D-karusell</h2>
+      <p>Korten står i en cirkel kring en gemensam mittpunkt; hela gruppen roteras stegvis. Bläddra med knapparna.</p>
+    </div>
+    <div class="demo-stage caro-stage">
+      <div class="caro" id="caro"></div>
+      <div class="caro-nav">
+        <button class="btn" id="caro-prev">← Föregående</button>
+        <button class="btn" id="caro-next">Nästa →</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>Parallaxlager i kort</h2>
+      <p>Tre lager på olika <code>translateZ</code>-djup rör sig olika mycket när kortet lutas — som ett hologram.</p>
+    </div>
+    <div class="demo-stage layers-stage">
+      <div class="layers-card" id="layers">
+        <div class="l l-bg"></div>
+        <div class="l l-mid">🛰️</div>
+        <div class="l l-top">DJUP · LAGER · PARALLAX</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>Isometriskt hover-lyft</h2>
+      <p>Rutor i isometrisk vy som lyfter mot betraktaren vid hover, med en hård skugga som förstärker höjdkänslan.</p>
+    </div>
+    <div class="demo-stage iso-stage">
+      <div class="iso"><span class="icon">⚡</span><small>SNABB</small></div>
+      <div class="iso"><span class="icon">🎨</span><small>DESIGN</small></div>
+      <div class="iso"><span class="icon">🚀</span><small>LANSERA</small></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>Nästa kategori: <a href="scroll.html">Scroll-effekter →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- 03 3D-karusell --- */
+(function () {
+  var caro = document.getElementById("caro");
+  var grads = [
+    "linear-gradient(160deg,#4c1d95,#8b5cf6)",
+    "linear-gradient(160deg,#0e7490,#22d3ee)",
+    "linear-gradient(160deg,#9d174d,#f472b6)",
+    "linear-gradient(160deg,#1e3a8a,#60a5fa)",
+    "linear-gradient(160deg,#14532d,#4ade80)",
+    "linear-gradient(160deg,#7c2d12,#fb923c)"
+  ];
+  var n = grads.length;
+  var radius = 260;
+  var angle = 0;
+
+  grads.forEach(function (g, i) {
+    var el = document.createElement("div");
+    el.className = "caro-item";
+    el.style.background = g;
+    el.style.transform = "rotateY(" + (i * 360 / n) + "deg) translateZ(" + radius + "px)";
+    el.textContent = "Kort " + (i + 1);
+    caro.appendChild(el);
+  });
+
+  function update() {
+    caro.style.transform = "translateZ(-" + radius + "px) rotateY(" + angle + "deg)";
+  }
+  document.getElementById("caro-next").addEventListener("click", function () { angle -= 360 / n; update(); });
+  document.getElementById("caro-prev").addEventListener("click", function () { angle += 360 / n; update(); });
+  update();
+})();
+
+/* --- 04 Parallaxlager-kort --- */
+(function () {
+  var card = document.getElementById("layers");
+  var stage = card.parentElement;
+  stage.addEventListener("mousemove", function (e) {
+    var r = stage.getBoundingClientRect();
+    var px = (e.clientX - r.left) / r.width - .5;
+    var py = (e.clientY - r.top) / r.height - .5;
+    card.style.transform = "rotateY(" + px * 30 + "deg) rotateX(" + py * -30 + "deg)";
+  });
+  stage.addEventListener("mouseleave", function () {
+    card.style.transition = "transform .6s cubic-bezier(.22,1,.36,1)";
+    card.style.transform = "rotateY(0) rotateX(0)";
+    setTimeout(function () { card.style.transition = "transform .15s ease-out"; }, 600);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+/* ============================================
+   Effektverkstan — delad designgrund
+   ============================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #07070d;
+  --bg2: #0d0d19;
+  --card: rgba(255, 255, 255, .04);
+  --card-hover: rgba(255, 255, 255, .07);
+  --border: rgba(255, 255, 255, .09);
+  --text: #e9e9f2;
+  --muted: #9a9ab4;
+  --violet: #8b5cf6;
+  --cyan: #22d3ee;
+  --pink: #f472b6;
+  --grad: linear-gradient(120deg, var(--violet), var(--cyan));
+  --radius: 18px;
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+::selection { background: var(--violet); color: #fff; }
+
+/* --- Kornighet över hela sajten (subtil) --- */
+body::after {
+  content: "";
+  position: fixed;
+  inset: -50%;
+  width: 200%;
+  height: 200%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 8s steps(10) infinite;
+}
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -2%); }
+  80% { transform: translate(3%, 3%); }
+}
+
+/* --- Header / navigation --- */
+.site-head {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .9rem clamp(1rem, 4vw, 3rem);
+  background: rgba(7, 7, 13, .7);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+.logo {
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: .02em;
+  text-decoration: none;
+  color: var(--text);
+  white-space: nowrap;
+}
+.logo span {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.site-head nav {
+  display: flex;
+  gap: .25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.site-head nav::-webkit-scrollbar { display: none; }
+.site-head nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .88rem;
+  padding: .4rem .7rem;
+  border-radius: 999px;
+  transition: color .25s, background .25s;
+  white-space: nowrap;
+}
+.site-head nav a:hover { color: var(--text); background: var(--card-hover); }
+.site-head nav a.active {
+  color: var(--text);
+  background: var(--card-hover);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+/* --- Sidlayout --- */
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: clamp(2rem, 6vw, 4rem) clamp(1rem, 4vw, 2rem) 4rem;
+}
+.page-intro { max-width: 640px; margin-bottom: clamp(2rem, 5vw, 3.5rem); }
+.page-intro .kicker {
+  font-family: var(--mono);
+  font-size: .78rem;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+.page-intro h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  margin: .5rem 0 .8rem;
+}
+.page-intro p { color: var(--muted); }
+
+/* --- Demokort --- */
+.demo { margin-bottom: clamp(2.5rem, 6vw, 4rem); }
+.demo-head { margin-bottom: 1rem; }
+.demo-head h2 { font-size: 1.25rem; letter-spacing: -.01em; }
+.demo-head h2 .nr {
+  font-family: var(--mono);
+  font-size: .8rem;
+  color: var(--violet);
+  margin-right: .5rem;
+}
+.demo-head p { color: var(--muted); font-size: .92rem; max-width: 560px; }
+.demo-stage {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg2);
+  overflow: hidden;
+  min-height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+/* --- Reveal on scroll (delad) --- */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity .7s cubic-bezier(.22, 1, .36, 1), transform .7s cubic-bezier(.22, 1, .36, 1);
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+/* --- Knappbas --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .7rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: .92rem;
+  font-family: var(--font);
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform .25s, background .25s, border-color .25s;
+}
+.btn:hover { background: var(--card-hover); border-color: rgba(255, 255, 255, .2); }
+
+/* --- Footer --- */
+.site-foot {
+  border-top: 1px solid var(--border);
+  padding: 2rem clamp(1rem, 4vw, 3rem);
+  color: var(--muted);
+  font-size: .85rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.site-foot a { color: var(--text); text-decoration: none; }
+.site-foot a:hover { color: var(--cyan); }
+
+/* --- Tillgänglighet: respektera reducerad rörelse --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+  html { scroll-behavior: auto; }
+  .reveal { opacity: 1; transform: none; }
+}

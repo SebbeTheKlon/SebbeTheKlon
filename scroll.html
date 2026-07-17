@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scroll-effekter — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* --- Progressmätare högst upp --- */
+  #progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 100%;
+    background: var(--grad);
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    z-index: 200;
+  }
+
+  /* --- 01 Reveal-varianter --- */
+  .rv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; width: 100%; }
+  .rv {
+    padding: 1.6rem;
+    border-radius: 14px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    opacity: 0;
+    transition: opacity .8s cubic-bezier(.22,1,.36,1), transform .8s cubic-bezier(.22,1,.36,1);
+  }
+  .rv h3 { font-size: .95rem; margin-bottom: .3rem; }
+  .rv p { font-size: .82rem; color: var(--muted); }
+  .rv.from-left { transform: translateX(-50px); }
+  .rv.from-right { transform: translateX(50px); }
+  .rv.from-down { transform: translateY(50px); }
+  .rv.zoom { transform: scale(.7); }
+  .rv.spin { transform: rotate(-8deg) scale(.85); }
+  .rv.on { opacity: 1; transform: none; }
+
+  /* --- 02 Parallaxbakgrund --- */
+  .plx-stage { min-height: 380px; padding: 0; }
+  .plx-bg {
+    position: absolute;
+    inset: -25% 0;
+    background:
+      radial-gradient(300px circle at 20% 30%, rgba(139,92,246,.35), transparent 60%),
+      radial-gradient(360px circle at 80% 70%, rgba(34,211,238,.28), transparent 60%),
+      radial-gradient(240px circle at 60% 20%, rgba(244,114,182,.22), transparent 60%);
+    will-change: transform;
+  }
+  .plx-mid {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,.12) 1px, transparent 1.5px);
+    background-size: 34px 34px;
+    will-change: transform;
+  }
+  .plx-front { position: relative; z-index: 2; text-align: center; }
+  .plx-front h3 { font-size: 1.6rem; }
+  .plx-front p { color: var(--muted); font-size: .88rem; }
+
+  /* --- 03 Staplade kort (sticky stack) --- */
+  .stack-wrap { position: relative; }
+  .stack-card {
+    position: sticky;
+    top: 90px;
+    min-height: 240px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    padding: 2rem;
+    margin-bottom: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .stack-card h3 { font-size: 1.3rem; margin-bottom: .4rem; }
+  .stack-card p { color: rgba(255,255,255,.75); max-width: 460px; font-size: .92rem; }
+  .stack-card:nth-child(1) { background: linear-gradient(150deg, #241a4d, #131327); }
+  .stack-card:nth-child(2) { background: linear-gradient(150deg, #103b4d, #0d1a27); top: 110px; }
+  .stack-card:nth-child(3) { background: linear-gradient(150deg, #4d1a38, #27131f); top: 130px; }
+
+  /* --- 04 Text som fylls i ord för ord --- */
+  .fill-stage { min-height: 320px; }
+  .fill-text {
+    max-width: 620px;
+    font-size: clamp(1.3rem, 3vw, 1.9rem);
+    font-weight: 700;
+    line-height: 1.45;
+    letter-spacing: -.01em;
+  }
+  .fill-text .w { color: rgba(255,255,255,.14); transition: color .35s; }
+  .fill-text .w.lit { color: var(--text); }
+
+  /* --- 05 Zoom-in-sektion --- */
+  .zoomer-stage { min-height: 340px; }
+  .zoomer {
+    width: 200px;
+    height: 200px;
+    border-radius: 24px;
+    background: var(--grad);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.6rem;
+    will-change: transform;
+    box-shadow: 0 20px 60px rgba(139,92,246,.35);
+  }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="ui.html">UI</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 04</div>
+    <h1>Scroll-effekter</h1>
+    <p>Scrollning är sajtens berättartempo. Notera den tunna progressmätaren högst upp på sidan — den är själv en av demona. Scrolla lugnt genom sidan så triggas allt i tur och ordning.</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>Reveal-varianter</h2>
+      <p>Samma IntersectionObserver, fem olika ingångar: från vänster, höger, nedifrån, zoom och rotation. Blanda inte fler än två per sida i skarpt läge.</p>
+    </div>
+    <div class="demo-stage" style="min-height:auto">
+      <div class="rv-grid">
+        <div class="rv from-left"><h3>← Vänster</h3><p>translateX(-50px) → 0</p></div>
+        <div class="rv from-down"><h3>↑ Nedifrån</h3><p>translateY(50px) → 0</p></div>
+        <div class="rv zoom"><h3>◎ Zoom</h3><p>scale(.7) → 1</p></div>
+        <div class="rv spin"><h3>↻ Rotation</h3><p>rotate(-8deg) → 0</p></div>
+        <div class="rv from-right"><h3>Höger →</h3><p>translateX(50px) → 0</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Parallaxbakgrund</h2>
+      <p>Bakgrundslagren rör sig långsammare än sidans scroll — det bakre minst, det mittersta lite mer. Skapar djup utan 3D.</p>
+    </div>
+    <div class="demo-stage plx-stage" id="plx">
+      <div class="plx-bg"></div>
+      <div class="plx-mid"></div>
+      <div class="plx-front">
+        <h3>Tre hastigheter, ett djup</h3>
+        <p>Scrolla förbi och titta på lagren bakom texten</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>Staplade kort</h2>
+      <p>Varje kort är <code>position: sticky</code> med lite olika toppavstånd — de staplas på varandra medan du scrollar. Inga skript alls.</p>
+    </div>
+    <div class="stack-wrap">
+      <div class="stack-card"><h3>Steg 1 — Idé</h3><p>Det första kortet fastnar högst upp när du scrollar vidare. Perfekt för processer, tidslinjer och berättande.</p></div>
+      <div class="stack-card"><h3>Steg 2 — Design</h3><p>Nästa kort glider upp och lägger sig ovanpå det förra, en aning längre ner så att stapeln syns.</p></div>
+      <div class="stack-card"><h3>Steg 3 — Lansering</h3><p>Det sista kortet avslutar stapeln. Effekten bygger helt på CSS sticky positioning.</p></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>Text som fylls i vid scroll</h2>
+      <p>Varje ord tänds i takt med hur långt elementet scrollats in i vyn. Vanligt på storytelling-sidor och produktlanseringar.</p>
+    </div>
+    <div class="demo-stage fill-stage">
+      <p class="fill-text" id="fill-text">Bra scrolleffekter känns aldrig som effekter. De känns som att sidan andas i samma takt som du läser den.</p>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>Skala med scrollposition</h2>
+      <p>Elementets storlek och rotation styrs direkt av var det befinner sig i vyn — scrolla upp och ner över det så växer och krymper det.</p>
+    </div>
+    <div class="demo-stage zoomer-stage">
+      <div class="zoomer" id="zoomer">🔮</div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>Nästa kategori: <a href="text.html">Texteffekter →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- Progressmätare --- */
+(function () {
+  var bar = document.getElementById("progress");
+  function update() {
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.transform = "scaleX(" + (max > 0 ? window.scrollY / max : 0) + ")";
+  }
+  window.addEventListener("scroll", update, { passive: true });
+  update();
+})();
+
+/* --- 01 Reveal-varianter --- */
+(function () {
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e, i) {
+      if (e.isIntersecting) {
+        setTimeout(function () { e.target.classList.add("on"); }, 120 * Array.prototype.indexOf.call(e.target.parentElement.children, e.target));
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: .3 });
+  document.querySelectorAll(".rv").forEach(function (el) { io.observe(el); });
+})();
+
+/* --- 02 Parallax --- */
+(function () {
+  var stage = document.getElementById("plx");
+  var bg = stage.querySelector(".plx-bg");
+  var mid = stage.querySelector(".plx-mid");
+  function update() {
+    var r = stage.getBoundingClientRect();
+    var centerOffset = r.top + r.height / 2 - window.innerHeight / 2; // 0 när scenen är mitt i vyn
+    bg.style.transform = "translateY(" + centerOffset * .18 + "px)";
+    mid.style.transform = "translateY(" + centerOffset * .08 + "px)";
+  }
+  window.addEventListener("scroll", update, { passive: true });
+  update();
+})();
+
+/* --- 04 Text som fylls i --- */
+(function () {
+  var el = document.getElementById("fill-text");
+  var words = el.textContent.trim().split(/\s+/);
+  el.innerHTML = words.map(function (w) { return '<span class="w">' + w + "</span>"; }).join(" ");
+  var spans = el.querySelectorAll(".w");
+  function update() {
+    var r = el.getBoundingClientRect();
+    // 0 när elementet precis kommer in nertill, 1 när det nått övre tredjedelen
+    var t = (window.innerHeight - r.top) / (window.innerHeight * .7);
+    var lit = Math.floor(Math.min(Math.max(t, 0), 1) * spans.length);
+    spans.forEach(function (s, i) { s.classList.toggle("lit", i < lit); });
+  }
+  window.addEventListener("scroll", update, { passive: true });
+  update();
+})();
+
+/* --- 05 Skala med scroll --- */
+(function () {
+  var el = document.getElementById("zoomer");
+  function update() {
+    var r = el.parentElement.getBoundingClientRect();
+    var center = r.top + r.height / 2;
+    // 1 i mitten av vyn, mot 0 vid kanterna
+    var t = 1 - Math.min(Math.abs(center - window.innerHeight / 2) / (window.innerHeight / 2), 1);
+    var scale = .5 + t * .9;
+    el.style.transform = "scale(" + scale + ") rotate(" + (1 - t) * 20 + "deg)";
+  }
+  window.addEventListener("scroll", update, { passive: true });
+  update();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Texteffekter — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* --- 01 Skrivmaskin --- */
+  .type-stage { min-height: 260px; }
+  .type-line {
+    font-family: var(--mono);
+    font-size: clamp(1.1rem, 3vw, 1.7rem);
+    color: var(--cyan);
+  }
+  .type-line .cursor-blink {
+    display: inline-block;
+    width: .55ch;
+    background: var(--cyan);
+    margin-left: 2px;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* --- 02 Scramble / avkodning --- */
+  .scramble-stage { min-height: 240px; }
+  .scramble-text {
+    font-family: var(--mono);
+    font-size: clamp(1.3rem, 4vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: .02em;
+    cursor: pointer;
+  }
+  .scramble-hint { color: var(--muted); font-size: .82rem; margin-top: .8rem; }
+
+  /* --- 03 Glitch --- */
+  .glitch-stage { min-height: 260px; background: #050508; }
+  .glitch {
+    position: relative;
+    font-size: clamp(2rem, 6vw, 3.4rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: var(--text);
+  }
+  .glitch::before, .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    overflow: hidden;
+    background: #050508;
+  }
+  .glitch::before {
+    color: var(--cyan);
+    clip-path: inset(0 0 55% 0);
+    animation: glitch-1 3.2s infinite linear alternate-reverse;
+  }
+  .glitch::after {
+    color: var(--pink);
+    clip-path: inset(55% 0 0 0);
+    animation: glitch-2 2.6s infinite linear alternate-reverse;
+  }
+  @keyframes glitch-1 {
+    0%, 92%, 100% { transform: translate(0,0); }
+    93% { transform: translate(-4px,-1px); }
+    95% { transform: translate(3px,1px); }
+    97% { transform: translate(-2px,1px); }
+  }
+  @keyframes glitch-2 {
+    0%, 90%, 100% { transform: translate(0,0); }
+    91% { transform: translate(4px,1px); }
+    94% { transform: translate(-3px,-1px); }
+    96% { transform: translate(2px,-1px); }
+  }
+
+  /* --- 04 Gradienttext + marquee --- */
+  .grad-text-stage { min-height: 180px; }
+  .grad-text {
+    font-size: clamp(2rem, 6vw, 3.6rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    background: linear-gradient(120deg, var(--violet), var(--cyan), var(--pink), var(--violet));
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: hue-slide 7s linear infinite;
+  }
+  @keyframes hue-slide { to { background-position: 300% 0; } }
+
+  .marquee-stage { min-height: 140px; padding: 0; align-items: center; }
+  .marquee-track {
+    display: flex;
+    gap: 3rem;
+    white-space: nowrap;
+    animation: marquee 14s linear infinite;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .marquee-track span { color: var(--text); }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+
+  /* --- 05 Bokstav-för-bokstav-reveal --- */
+  .letters-stage { min-height: 220px; }
+  .letters {
+    font-size: clamp(1.3rem, 4vw, 2rem);
+    font-weight: 700;
+  }
+  .letters span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(16px) rotate(6deg);
+    transition: opacity .5s, transform .5s;
+  }
+  .letters.on span { opacity: 1; transform: none; }
+
+  /* --- 06 Highlight-understrykning --- */
+  .hl-stage { min-height: 200px; }
+  .hl-text { font-size: clamp(1.2rem, 3.4vw, 1.7rem); max-width: 640px; line-height: 1.6; }
+  .hl {
+    position: relative;
+    font-weight: 700;
+    background: linear-gradient(120deg, rgba(139,92,246,.35), rgba(34,211,238,.35));
+    background-repeat: no-repeat;
+    background-size: 0% 40%;
+    background-position: 0 88%;
+    transition: background-size 1s cubic-bezier(.22,1,.36,1);
+    padding: 0 2px;
+  }
+  .hl.on { background-size: 100% 40%; }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="ui.html">UI</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 05</div>
+    <h1>Texteffekter</h1>
+    <p>Text är oftast det första besökaren läser — små rörelser i typografin skapar rytm och drar blicken dit du vill, utan att göra texten svårläst.</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>Skrivmaskin</h2>
+      <p>Text skrivs ut tecken för tecken och byter mening — klassiskt för hero-rubriker och terminal-inspirerade sajter.</p>
+    </div>
+    <div class="demo-stage type-stage">
+      <div class="type-line"><span id="type-out"></span><span class="cursor-blink">&nbsp;</span></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Scramble / avkodning</h2>
+      <p>Bokstäver singlar runt slumpmässigt innan de landar på rätt tecken — som en dekrypteringseffekt. Klicka för att köra igen.</p>
+    </div>
+    <div class="demo-stage scramble-stage">
+      <div style="text-align:center">
+        <div class="scramble-text" id="scramble" data-text="AVKODAR TEXT">AVKODAR TEXT</div>
+        <div class="scramble-hint">Klicka på texten</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>Glitch</h2>
+      <p>Två färgade kopior av texten hoppar till och från i korta ryck — RGB-split som i gamla CRT-skärmar. Använd sparsamt.</p>
+    </div>
+    <div class="demo-stage glitch-stage">
+      <div class="glitch" data-text="SYSTEM FEL">SYSTEM FEL</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>Gradienttext &amp; marquee</h2>
+      <p>Text fylld med en animerad gradient, samt en oändligt rullande textrad — bra för nyheter, taggar eller kundlogotyper.</p>
+    </div>
+    <div class="demo-stage grad-text-stage">
+      <div class="grad-text">Levande färg</div>
+    </div>
+    <div class="demo-stage marquee-stage" style="margin-top:1rem">
+      <div class="marquee-track">
+        <span>Design</span>Utveckling<span>Animation</span>Interaktion<span>3D</span>Prestanda<span>Design</span>Utveckling<span>Animation</span>Interaktion<span>3D</span>Prestanda
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>Bokstav-för-bokstav-reveal</h2>
+      <p>Varje bokstav är ett eget element som fälls in med liten fördröjning mellan sig — ger en organisk, "stänk"-liknande rörelse.</p>
+    </div>
+    <div class="demo-stage letters-stage">
+      <div class="letters" id="letters">Bokstäver som faller på plats</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">06</span>Highlight-understrykning</h2>
+      <p>En gradient-bakgrund växer bakom nyckelord när de scrollas in i vy — som att markera med överstrykningspenna.</p>
+    </div>
+    <div class="demo-stage hl-stage">
+      <p class="hl-text">Bra design handlar om <span class="hl">tydlig hierarki</span>, inte om att stapla effekter — varje detalj ska ha ett <span class="hl">syfte</span>.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>Nästa kategori: <a href="galleri.html">Bildspel &amp; gallerier →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- 01 Skrivmaskin --- */
+(function () {
+  var out = document.getElementById("type-out");
+  var lines = ["Bygg något minnesvärt.", "Detaljer avgör känslan.", "Effekter i tjänst av innehållet."];
+  var li = 0, ci = 0, deleting = false;
+  function tick() {
+    var line = lines[li];
+    if (!deleting) {
+      ci++;
+      out.textContent = line.slice(0, ci);
+      if (ci === line.length) { deleting = true; setTimeout(tick, 1400); return; }
+    } else {
+      ci--;
+      out.textContent = line.slice(0, ci);
+      if (ci === 0) { deleting = false; li = (li + 1) % lines.length; }
+    }
+    setTimeout(tick, deleting ? 35 : 55);
+  }
+  tick();
+})();
+
+/* --- 02 Scramble --- */
+(function () {
+  var el = document.getElementById("scramble");
+  var target = el.dataset.text;
+  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#%&*+";
+  var running = false;
+  function run() {
+    if (running) return;
+    running = true;
+    var frame = 0, totalFrames = 24;
+    var iv = setInterval(function () {
+      var progress = frame / totalFrames;
+      var revealed = Math.floor(progress * target.length);
+      var out = "";
+      for (var i = 0; i < target.length; i++) {
+        if (target[i] === " ") { out += " "; continue; }
+        out += i < revealed ? target[i] : chars[Math.floor(Math.random() * chars.length)];
+      }
+      el.textContent = out;
+      frame++;
+      if (frame > totalFrames) { clearInterval(iv); el.textContent = target; running = false; }
+    }, 40);
+  }
+  el.addEventListener("click", run);
+  setTimeout(run, 500);
+})();
+
+/* --- 05 Bokstav-för-bokstav --- */
+(function () {
+  var el = document.getElementById("letters");
+  var text = el.textContent;
+  el.innerHTML = text.split("").map(function (c, i) {
+    return '<span style="transition-delay:' + (i * 28) + 'ms">' + (c === " " ? "&nbsp;" : c) + "</span>";
+  }).join("");
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { if (e.isIntersecting) { el.classList.add("on"); io.unobserve(el); } });
+  }, { threshold: .5 });
+  io.observe(el);
+})();
+
+/* --- 06 Highlight --- */
+(function () {
+  var els = document.querySelectorAll(".hl");
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.add("on"); io.unobserve(e.target); }
+    });
+  }, { threshold: .8 });
+  els.forEach(function (el) { io.observe(el); });
+})();
+</script>
+</body>
+</html>
