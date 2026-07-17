@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Labbet — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
+<style>
+  /* --- 01 WebGL-shader --- */
+  .gl-stage { min-height: 380px; padding: 0; background: #0d0d19; }
+  .gl-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .gl-hint { position: relative; z-index: 2; color: rgba(255,255,255,.85); font-size: .85rem; pointer-events: none; text-shadow: 0 1px 8px rgba(0,0,0,.6); }
+
+  /* --- 02 Scroll-drivna CSS-animationer --- */
+  .sda-stage { min-height: auto; flex-direction: column; gap: 1.2rem; align-items: stretch; }
+  .sda-card {
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    padding: 1.6rem;
+  }
+  .sda-card h3 { font-size: 1rem; margin-bottom: .3rem; }
+  .sda-card p { font-size: .85rem; color: var(--muted); }
+  .sda-bar {
+    height: 8px;
+    border-radius: 999px;
+    background: var(--grad);
+    transform-origin: left center;
+    margin-top: .8rem;
+  }
+  @supports (animation-timeline: view()) {
+    .sda-card {
+      animation: sda-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 5% cover 40%;
+    }
+    .sda-bar {
+      animation: sda-grow linear both;
+      animation-timeline: view();
+      animation-range: entry 20% cover 70%;
+    }
+    .sda-fallback { display: none; }
+  }
+  @keyframes sda-rise {
+    from { opacity: 0; transform: translateY(70px) scale(.92) rotate(-2deg); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes sda-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  .sda-fallback { color: var(--muted); font-size: .85rem; padding: .8rem 0; }
+
+  /* --- 03 View Transitions --- */
+  .vt-stage { min-height: 340px; flex-direction: column; gap: 1.6rem; }
+  .vt-grid { display: grid; grid-template-columns: repeat(3, minmax(70px, 96px)); gap: .8rem; }
+  .vt-tile {
+    aspect-ratio: 1;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: rgba(255,255,255,.9);
+    cursor: pointer;
+  }
+  ::view-transition-group(*) { animation-duration: .55s; }
+
+  /* --- 04 Gooey-effekt --- */
+  .goo-stage { min-height: 360px; }
+  .goo-wrap { position: relative; width: 260px; height: 260px; filter: url(#goo); }
+  .goo-blob {
+    position: absolute;
+    top: 50%; left: 50%;
+    border-radius: 50%;
+    background: var(--violet);
+  }
+  .goo-core { width: 90px; height: 90px; margin: -45px 0 0 -45px; }
+  .goo-orbit {
+    width: 46px; height: 46px; margin: -23px 0 0 -23px;
+    animation: goo-spin var(--d, 5s) linear infinite;
+  }
+  @keyframes goo-spin {
+    from { transform: rotate(0deg) translateX(85px); }
+    to { transform: rotate(360deg) translateX(85px); }
+  }
+
+  /* --- 05 Typografi som reagerar på musen --- */
+  .vf-stage { min-height: 300px; cursor: default; }
+  .vf {
+    font-size: clamp(2rem, 7vw, 4rem);
+    letter-spacing: .02em;
+    user-select: none;
+    display: flex;
+  }
+  .vf span {
+    font-weight: 200;
+    transition: font-weight .15s linear, color .15s;
+  }
+
+  /* --- 06 Sidövergångar mellan sidor --- */
+  .mpa-stage { min-height: 240px; flex-direction: column; gap: 1.2rem; text-align: center; }
+  .mpa-stage p { color: var(--muted); font-size: .9rem; max-width: 480px; }
+  .mpa-links { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="goo">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="11" result="blur"/>
+      <feColorMatrix in="blur" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -11"/>
+    </filter>
+  </defs>
+</svg>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="ui.html">UI</a>
+    <a href="labb.html">Labbet</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 08 · Experimentell</div>
+    <h1>Labbet</h1>
+    <p>De nyaste och mest avancerade teknikerna: äkta GPU-shaders, scroll-drivna animationer i ren CSS, View Transitions API och SVG-filter. Vissa demos kräver en modern Chrome/Edge — sidan berättar när något inte stöds.</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>WebGL-shader</h2>
+      <p>Ett plasmafält som beräknas per pixel på grafikkortet, med musen som ljuskälla. Detta är samma grundteknik som three.js bygger på — här i rå WebGL utan bibliotek.</p>
+    </div>
+    <div class="demo-stage gl-stage" id="gl-stage">
+      <canvas id="gl"></canvas>
+      <span class="gl-hint">Rör musen — den lyser upp fältet</span>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Scroll-drivna CSS-animationer</h2>
+      <p>Animationerna nedan styrs av <code>animation-timeline: view()</code> — scrollpositionen ÄR tidslinjen, helt utan JavaScript. Scrolla upp och ner över korten.</p>
+    </div>
+    <div class="demo-stage sda-stage">
+      <div class="sda-fallback">⚠️ Din webbläsare stöder inte <code>animation-timeline</code> ännu — prova Chrome eller Edge.</div>
+      <div class="sda-card"><h3>Kort ett</h3><p>Glider in och mätaren fylls i takt med din scroll.</p><div class="sda-bar"></div></div>
+      <div class="sda-card"><h3>Kort två</h3><p>Samma animation, men den startar när kortet når vyn.</p><div class="sda-bar"></div></div>
+      <div class="sda-card"><h3>Kort tre</h3><p>Scrolla baklänges — animationen spelas baklänges också.</p><div class="sda-bar"></div></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>View Transitions API</h2>
+      <p>Webbläsaren animerar automatiskt varje bricka till sin nya plats — en rad JavaScript, resten sköter <code>document.startViewTransition()</code>.</p>
+    </div>
+    <div class="demo-stage vt-stage">
+      <div class="vt-grid" id="vt-grid">
+        <div class="vt-tile" style="view-transition-name:vt1;background:linear-gradient(140deg,#4c1d95,#8b5cf6)">1</div>
+        <div class="vt-tile" style="view-transition-name:vt2;background:linear-gradient(140deg,#0e7490,#22d3ee)">2</div>
+        <div class="vt-tile" style="view-transition-name:vt3;background:linear-gradient(140deg,#9d174d,#f472b6)">3</div>
+        <div class="vt-tile" style="view-transition-name:vt4;background:linear-gradient(140deg,#1e3a8a,#60a5fa)">4</div>
+        <div class="vt-tile" style="view-transition-name:vt5;background:linear-gradient(140deg,#14532d,#4ade80)">5</div>
+        <div class="vt-tile" style="view-transition-name:vt6;background:linear-gradient(140deg,#7c2d12,#fb923c)">6</div>
+      </div>
+      <button class="btn" id="vt-shuffle">🔀 Blanda brickorna</button>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>Gooey-effekt (SVG-filter)</h2>
+      <p>Blur + kontrast på alfakanalen gör att former smälter ihop som kvicksilver när de närmar sig varandra. Filtret är fyra rader SVG.</p>
+    </div>
+    <div class="demo-stage goo-stage">
+      <div class="goo-wrap">
+        <div class="goo-blob goo-core"></div>
+        <div class="goo-blob goo-orbit" style="--d:4.5s"></div>
+        <div class="goo-blob goo-orbit" style="--d:6.5s; animation-delay:-2s"></div>
+        <div class="goo-blob goo-orbit" style="--d:8s; animation-delay:-5s"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>Typografi som reagerar på musen</h2>
+      <p>Varje bokstavs vikt styrs av avståndet till muspekaren — bokstäverna närmast blir feta, resten smala. Med ett variabelt typsnitt blir övergången helt mjuk.</p>
+    </div>
+    <div class="demo-stage vf-stage" id="vf-stage">
+      <div class="vf" id="vf">TYPOGRAFI</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">06</span>Sidövergångar mellan sidor</h2>
+      <p>Hela sajten har <code>@view-transition { navigation: auto }</code> aktiverat — i Chrome/Edge tonar sidorna mjukt i varandra vid navigering, helt utan JavaScript.</p>
+    </div>
+    <div class="demo-stage mpa-stage">
+      <p>Klicka på en länk och titta noga på övergången — sidan byts inte abrupt utan tonar över.</p>
+      <div class="mpa-links">
+        <a class="btn" href="bakgrund.html">→ Bakgrund</a>
+        <a class="btn" href="text.html">→ Text</a>
+        <a class="btn" href="index.html">→ Startsidan</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>Tillbaka till början: <a href="bakgrund.html">Bakgrundseffekter →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- 01 WebGL-shader --- */
+(function () {
+  var canvas = document.getElementById("gl");
+  var stage = document.getElementById("gl-stage");
+  var gl = canvas.getContext("webgl");
+  if (!gl) {
+    stage.querySelector(".gl-hint").textContent = "⚠️ WebGL stöds inte i din webbläsare.";
+    return;
+  }
+  var vsSrc = "attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}";
+  var fsSrc =
+    "precision mediump float;uniform float t;uniform vec2 r;uniform vec2 m;" +
+    "void main(){" +
+    "vec2 uv=(gl_FragCoord.xy*2.0-r)/min(r.x,r.y);" +
+    "float v=sin(uv.x*3.0+t*0.6)+sin(uv.y*3.0-t*0.4)+sin((uv.x+uv.y)*2.0+t*0.5)+sin(length(uv)*4.0-t*0.7);" +
+    "vec3 col=0.5+0.5*cos(v*1.2+vec3(0.0,2.1,4.2)+t*0.1);" +
+    "col*=vec3(0.62,0.5,1.0)*0.55;" +
+    "col+=vec3(0.45,0.75,1.0)*0.5*smoothstep(0.9,0.0,length(uv-m));" +
+    "gl_FragColor=vec4(col,1.0);}";
+
+  function compile(type, src) {
+    var s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  var prog = gl.createProgram();
+  gl.attachShader(prog, compile(gl.VERTEX_SHADER, vsSrc));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, fsSrc));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+
+  var buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+  var loc = gl.getAttribLocation(prog, "p");
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+  var uT = gl.getUniformLocation(prog, "t");
+  var uR = gl.getUniformLocation(prog, "r");
+  var uM = gl.getUniformLocation(prog, "m");
+  var mx = 0, my = 0;
+
+  function resize() {
+    canvas.width = stage.clientWidth;
+    canvas.height = stage.clientHeight;
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  stage.addEventListener("mousemove", function (e) {
+    var rect = stage.getBoundingClientRect();
+    var x = e.clientX - rect.left;
+    var y = rect.height - (e.clientY - rect.top); // WebGL har y uppåt
+    var mn = Math.min(rect.width, rect.height);
+    mx = (x * 2 - rect.width) / mn;
+    my = (y * 2 - rect.height) / mn;
+  });
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var start = performance.now();
+  function tick(now) {
+    gl.uniform1f(uT, (now - start) / 1000);
+    gl.uniform2f(uR, canvas.width, canvas.height);
+    gl.uniform2f(uM, mx, my);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    if (!reduced) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* --- 03 View Transitions --- */
+(function () {
+  var grid = document.getElementById("vt-grid");
+  document.getElementById("vt-shuffle").addEventListener("click", function () {
+    var shuffle = function () {
+      Array.prototype.slice.call(grid.children)
+        .sort(function () { return Math.random() - .5; })
+        .forEach(function (c) { grid.appendChild(c); });
+    };
+    if (document.startViewTransition) document.startViewTransition(shuffle);
+    else shuffle();
+  });
+})();
+
+/* --- 05 Typografi som reagerar på musen --- */
+(function () {
+  var el = document.getElementById("vf");
+  var stage = document.getElementById("vf-stage");
+  var text = el.textContent;
+  el.innerHTML = text.split("").map(function (c) { return "<span>" + c + "</span>"; }).join("");
+  var spans = el.querySelectorAll("span");
+
+  stage.addEventListener("mousemove", function (e) {
+    spans.forEach(function (s) {
+      var r = s.getBoundingClientRect();
+      var cx = r.left + r.width / 2;
+      var d = Math.abs(e.clientX - cx);
+      var t = Math.max(0, 1 - d / 260); // 1 nära musen, 0 långt bort
+      s.style.fontWeight = Math.round(200 + t * 700);
+      s.style.color = t > .6 ? "var(--cyan)" : "";
+    });
+  });
+  stage.addEventListener("mouseleave", function () {
+    spans.forEach(function (s) { s.style.fontWeight = 200; s.style.color = ""; });
+  });
+})();
+</script>
+<script src="js/code-view.js"></script>
+</body>
+</html>

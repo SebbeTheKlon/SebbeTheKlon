@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Scroll-effekter — Effektverkstan</title>
 <link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
 <style>
   /* --- Progressmätare högst upp --- */
   #progress {
@@ -38,7 +39,7 @@
   .rv.on { opacity: 1; transform: none; }
 
   /* --- 02 Parallaxbakgrund --- */
-  .plx-stage { min-height: 380px; padding: 0; }
+  .plx-stage { min-height: 380px; padding: 0; background: #0d0d19; color: #e9e9f2; }
   .plx-bg {
     position: absolute;
     inset: -25% 0;
@@ -72,6 +73,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    color: #e9e9f2;
   }
   .stack-card h3 { font-size: 1.3rem; margin-bottom: .4rem; }
   .stack-card p { color: rgba(255,255,255,.75); max-width: 460px; font-size: .92rem; }
@@ -88,7 +90,7 @@
     line-height: 1.45;
     letter-spacing: -.01em;
   }
-  .fill-text .w { color: rgba(255,255,255,.14); transition: color .35s; }
+  .fill-text .w { color: rgba(128,128,160,.3); transition: color .35s; }
   .fill-text .w.lit { color: var(--text); }
 
   /* --- 05 Zoom-in-sektion --- */
@@ -121,6 +123,7 @@
     <a href="text.html">Text</a>
     <a href="galleri.html">Galleri</a>
     <a href="ui.html">UI</a>
+    <a href="labb.html">Labbet</a>
   </nav>
 </header>
 
@@ -273,5 +276,6 @@
   update();
 })();
 </script>
+<script src="js/code-view.js"></script>
 </body>
 </html>
