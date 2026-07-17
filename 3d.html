@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>3D-effekter — Effektverkstan</title>
 <link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
 <style>
   /* --- 01 Flip-kort --- */
   .flip-stage { min-height: 340px; gap: 2rem; flex-wrap: wrap; perspective: 1000px; }
@@ -32,7 +33,7 @@
     text-align: center;
     border: 1px solid var(--border);
   }
-  .flip-front { background: linear-gradient(160deg, #16162a, #0d0d19); }
+  .flip-front { background: linear-gradient(160deg, #16162a, #0d0d19); color: #e9e9f2; }
   .flip-front .big { font-size: 2.4rem; }
   .flip-back {
     background: linear-gradient(160deg, rgba(139,92,246,.35), rgba(34,211,238,.2));
@@ -153,13 +154,14 @@
     transition: transform .4s cubic-bezier(.22, 1, .36, 1), box-shadow .4s;
     box-shadow: -8px 8px 0 rgba(139, 92, 246, .25);
     cursor: pointer;
+    color: #e9e9f2;
   }
   .iso:hover {
     transform: rotateX(45deg) rotateZ(-45deg) translateZ(28px);
     box-shadow: -20px 20px 0 rgba(139, 92, 246, .35), -20px 20px 40px rgba(0,0,0,.5);
   }
   .iso .icon { font-size: 1.8rem; }
-  .iso small { color: var(--muted); font-family: var(--mono); font-size: .7rem; letter-spacing: .1em; }
+  .iso small { color: rgba(255,255,255,.55); font-family: var(--mono); font-size: .7rem; letter-spacing: .1em; }
 </style>
 </head>
 <body>
@@ -174,6 +176,7 @@
     <a href="text.html">Text</a>
     <a href="galleri.html">Galleri</a>
     <a href="ui.html">UI</a>
+    <a href="labb.html">Labbet</a>
   </nav>
 </header>
 
@@ -315,5 +318,6 @@
   });
 })();
 </script>
+<script src="js/code-view.js"></script>
 </body>
 </html>

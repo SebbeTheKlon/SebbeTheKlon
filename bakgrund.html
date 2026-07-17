@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bakgrundseffekter — Effektverkstan</title>
 <link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
 <style>
   /* --- 01 Aurora --- */
   .aurora-stage { min-height: 340px; }
@@ -31,14 +32,15 @@
   .aurora-label { position: relative; z-index: 2; font-weight: 700; font-size: 1.4rem; letter-spacing: -.01em; }
 
   /* --- 02 Partikelnät: canvas fyller scenen --- */
-  .net-stage { min-height: 340px; padding: 0; }
+  .net-stage { min-height: 340px; padding: 0; background: #0d0d19; }
   .net-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .net-hint { position: relative; z-index: 2; color: var(--muted); font-size: .85rem; pointer-events: none; }
+  .net-hint { position: relative; z-index: 2; color: #9a9ab4; font-size: .85rem; pointer-events: none; }
 
   /* --- 03 Punktrutnät med spotlight --- */
   .dots-stage {
     min-height: 320px;
     padding: 0;
+    background-color: #0d0d19;
     background-image: radial-gradient(rgba(255,255,255,.16) 1px, transparent 1.5px);
     background-size: 26px 26px;
     cursor: crosshair;
@@ -79,6 +81,7 @@
     border-radius: 14px;
     padding: 1.4rem 2rem;
     font-weight: 600;
+    color: #e9e9f2;
   }
 
   /* --- 05 Stjärnfält --- */
@@ -121,6 +124,7 @@
     <a href="text.html">Text</a>
     <a href="galleri.html">Galleri</a>
     <a href="ui.html">UI</a>
+    <a href="labb.html">Labbet</a>
   </nav>
 </header>
 
@@ -300,5 +304,6 @@
   tick();
 })();
 </script>
+<script src="js/code-view.js"></script>
 </body>
 </html>

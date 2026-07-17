@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Museffekter — Effektverkstan</title>
 <link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
 <style>
   /* --- 01 Egen muspekare (aktiveras per demo-yta) --- */
   .cursor-stage { min-height: 300px; cursor: none; flex-direction: column; gap: 1.5rem; }
@@ -89,7 +90,7 @@
   .tilt-card p { color: var(--muted); font-size: .88rem; margin-top: .5rem; transform: translateZ(25px); }
 
   /* --- 05 Partikelspår --- */
-  .trail-stage { min-height: 320px; padding: 0; cursor: crosshair; }
+  .trail-stage { min-height: 320px; padding: 0; cursor: crosshair; background: #0d0d19; }
   .trail-stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
   .trail-hint { position: relative; z-index: 2; color: var(--muted); font-size: .85rem; pointer-events: none; }
 
@@ -137,6 +138,7 @@
     <a href="text.html">Text</a>
     <a href="galleri.html">Galleri</a>
     <a href="ui.html">UI</a>
+    <a href="labb.html">Labbet</a>
   </nav>
 </header>
 
@@ -363,5 +365,6 @@ document.querySelectorAll(".spot-card").forEach(function (card) {
   });
 })();
 </script>
+<script src="js/code-view.js"></script>
 </body>
 </html>

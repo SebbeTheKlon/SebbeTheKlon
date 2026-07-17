@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bildspel &amp; gallerier — Effektverkstan</title>
 <link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
 <style>
   /* "Bilder" = gradienter, så sajten är helt självständig utan bildfiler */
   .ph { display: flex; align-items: flex-end; padding: 1rem; font-weight: 700; color: rgba(255,255,255,.9); }
@@ -113,7 +114,7 @@
     background: linear-gradient(140deg, #8b5cf6, #22d3ee);
     clip-path: inset(0 calc(100% - var(--pos, 50%)) 0 0);
   }
-  .ba-label { position: absolute; top: 1rem; font-family: var(--mono); font-size: .72rem; letter-spacing: .15em; padding: .3rem .6rem; border-radius: 6px; background: rgba(0,0,0,.5); }
+  .ba-label { position: absolute; top: 1rem; font-family: var(--mono); font-size: .72rem; letter-spacing: .15em; padding: .3rem .6rem; border-radius: 6px; background: rgba(0,0,0,.5); color: #fff; }
   .ba-before .ba-label { right: 1rem; }
   .ba-after .ba-label { left: 1rem; }
   .ba-handle {
@@ -188,6 +189,7 @@
     <a href="text.html">Text</a>
     <a href="galleri.html">Galleri</a>
     <a href="ui.html">UI</a>
+    <a href="labb.html">Labbet</a>
   </nav>
 </header>
 
@@ -413,5 +415,6 @@
   dlg.addEventListener("click", function () { dlg.close(); });
 })();
 </script>
+<script src="js/code-view.js"></script>
 </body>
 </html>
