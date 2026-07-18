@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typografi — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
+<style>
+  /* --- 01 Anfang (drop cap) --- */
+  .cap-stage { min-height: 260px; }
+  .cap-text { max-width: 520px; font-size: 1rem; line-height: 1.75; color: var(--muted); }
+  .cap-text::first-letter {
+    float: left;
+    font-size: 4.2em;
+    line-height: .82;
+    padding: .06em .12em 0 0;
+    font-weight: 800;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* --- 02 Neonglöd --- */
+  .neon-stage { min-height: 280px; background: #050508; }
+  .neon {
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    font-weight: 300;
+    letter-spacing: .12em;
+    color: #fff;
+    text-shadow:
+      0 0 6px #fff,
+      0 0 14px #22d3ee,
+      0 0 32px #22d3ee,
+      0 0 64px #0e7490;
+  }
+  .neon .flicker { animation: neon-flick 3.5s infinite; }
+  @keyframes neon-flick {
+    0%, 6%, 10%, 100% { opacity: 1; }
+    7%, 9% { opacity: .3; text-shadow: none; }
+    54% { opacity: 1; }
+    55% { opacity: .5; }
+    56% { opacity: 1; }
+  }
+
+  /* --- 03 Konturtext --- */
+  .stroke-stage { min-height: 240px; }
+  .stroke {
+    font-size: clamp(2.4rem, 7vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--text);
+    cursor: default;
+    transition: color .4s;
+    background: var(--grad);
+    -webkit-background-clip: text;
+    background-clip: text;
+    background-size: 0% 100%;
+    background-repeat: no-repeat;
+    transition: background-size .6s cubic-bezier(.22,1,.36,1);
+  }
+  .stroke:hover { background-size: 100% 100%; }
+
+  /* --- 04 Spärrning vid hover --- */
+  .track-stage { min-height: 220px; }
+  .track {
+    font-size: clamp(1.4rem, 4vw, 2.2rem);
+    font-weight: 700;
+    letter-spacing: .02em;
+    cursor: default;
+    transition: letter-spacing .6s cubic-bezier(.22,1,.36,1), color .4s;
+  }
+  .track:hover { letter-spacing: .35em; color: var(--cyan); }
+
+  /* --- 05 Text på bana --- */
+  .path-stage { min-height: 320px; }
+  .path-stage svg { width: min(460px, 92%); height: auto; overflow: visible; }
+  .path-stage text {
+    fill: var(--text);
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    font-family: var(--font);
+  }
+
+  /* --- 06 Vågtext --- */
+  .wave-stage { min-height: 240px; }
+  .wave { font-size: clamp(1.8rem, 5vw, 3rem); font-weight: 800; display: flex; }
+  .wave span {
+    display: inline-block;
+    animation: wave-bob 1.8s ease-in-out infinite;
+    animation-delay: calc(var(--i) * .08s);
+  }
+  .wave:hover span { color: var(--pink); }
+  @keyframes wave-bob {
+    0%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-14px); }
+    60% { transform: translateY(3px); }
+  }
+
+  /* --- 07 Balanserade rubriker --- */
+  .bal-stage { min-height: auto; gap: 1rem; flex-wrap: wrap; align-items: stretch; }
+  .bal-card { flex: 1 1 260px; border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem; background: var(--card); }
+  .bal-card small { display: block; font-family: var(--mono); font-size: .68rem; letter-spacing: .12em; color: var(--muted); margin-bottom: .6rem; }
+  .bal-card h3 { font-size: 1.25rem; line-height: 1.3; max-width: 30ch; }
+  .bal-card.balanced h3 { text-wrap: balance; }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="typografi.html">Typografi</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="media.html">Media</a>
+    <a href="ui.html">UI</a>
+    <a href="formular.html">Formulär</a>
+    <a href="navigation.html">Navigation</a>
+    <a href="feedback.html">Feedback</a>
+    <a href="listor.html">Listor</a>
+    <a href="tillstand.html">Tillstånd</a>
+    <a href="css.html">Modern CSS</a>
+    <a href="labb.html">Labbet</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 14</div>
+    <h1>Typografi</h1>
+    <p>Systereffekterna till <a href="text.html" style="color:var(--cyan)">Text-sidan</a> — här handlar det om bokstävernas form, ljus och rytm snarare än rörelse.</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>Anfang (drop cap)</h2>
+      <p>En stor första bokstav som i klassiska böcker — <code>::first-letter</code> gör det utan extra markup.</p>
+    </div>
+    <div class="demo-stage cap-stage">
+      <p class="cap-text">Det var en gång en hemsida som vågade se ut som något. Den första bokstaven tog plats som en trumpetfanfar, och resten av texten följde efter i lugn och läsbar takt. Anfanger passar utmärkt för artiklar, bloggar och långläsning där du vill ge texten ett redaktionellt, påkostat intryck.</p>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Neonglöd</h2>
+      <p>Staplade <code>text-shadow</code>-lager i stigande radie bygger glöden — och en bokstav flimrar som en trött neonskylt.</p>
+    </div>
+    <div class="demo-stage neon-stage">
+      <div class="neon">ÖPP<span class="flicker">E</span>T</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>Konturtext</h2>
+      <p>Transparent fyllning med <code>-webkit-text-stroke</code> — håll musen över så fylls texten med gradient från vänster.</p>
+    </div>
+    <div class="demo-stage stroke-stage">
+      <div class="stroke">KONTUR</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>Spärrning vid hover</h2>
+      <p>Bokstäverna andas isär när du hovrar — en lyxig detalj för loggor och menyrubriker.</p>
+    </div>
+    <div class="demo-stage track-stage">
+      <div class="track">ANDRUM</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>Text på bana</h2>
+      <p>SVG <code>textPath</code> lägger texten längs en kurva, och en animerad offset låter den glida fram och tillbaka.</p>
+    </div>
+    <div class="demo-stage path-stage">
+      <svg viewBox="0 0 460 190" aria-hidden="true">
+        <path id="tp-curve" fill="none" stroke="color-mix(in srgb, currentColor 15%, transparent)" stroke-dasharray="3 6" d="M20 150 Q 230 -40 440 150"/>
+        <text><textPath href="#tp-curve" id="tp-text" startOffset="10%">TEXT SOM FÖLJER KURVAN ✦</textPath></text>
+      </svg>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">06</span>Vågtext</h2>
+      <p>Varje bokstav gungar med stigande fördröjning — en löpande våg genom ordet.</p>
+    </div>
+    <div class="demo-stage wave-stage">
+      <div class="wave" id="wave">BÖLJANDE</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">07</span>Balanserade rubriker</h2>
+      <p><code>text-wrap: balance</code> fördelar orden jämnt över raderna — slut på ensamma ord på sista raden.</p>
+    </div>
+    <div class="demo-stage bal-stage">
+      <div class="bal-card"><small>UTAN BALANCE</small><h3>En ganska lång rubrik som bryter raderna lite hur som helst</h3></div>
+      <div class="bal-card balanced"><small>MED BALANCE</small><h3>En ganska lång rubrik som bryter raderna lite hur som helst</h3></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>Nästa kategori: <a href="css.html">Modern CSS →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- 05 Text på bana --- */
+(function () {
+  var tp = document.getElementById("tp-text");
+  var t = 0;
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function tick() {
+    t += .008;
+    tp.setAttribute("startOffset", (10 + Math.sin(t) * 9) + "%");
+    if (!reduced) requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* --- 06 Vågtext --- */
+(function () {
+  var el = document.getElementById("wave");
+  el.innerHTML = el.textContent.split("").map(function (c, i) {
+    return '<span style="--i:' + i + '">' + c + "</span>";
+  }).join("");
+})();
+</script>
+<script src="js/code-view.js"></script>
+</body>
+</html>

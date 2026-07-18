@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modern CSS — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
+<style>
+  /* --- 01 :has() — föräldern reagerar --- */
+  .has-stage { min-height: 300px; gap: 1rem; flex-wrap: wrap; }
+  .plan {
+    width: 180px; padding: 1.4rem; text-align: center;
+    border: 1.5px solid var(--border); border-radius: 14px;
+    background: var(--card); cursor: pointer;
+    transition: border-color .3s, transform .3s, background .3s;
+  }
+  .plan input { position: absolute; opacity: 0; }
+  .plan h3 { font-size: 1rem; }
+  .plan .pris { font-size: 1.5rem; font-weight: 800; margin: .4rem 0; }
+  .plan p { color: var(--muted); font-size: .78rem; }
+  .plan .vald { display: inline-block; margin-top: .6rem; font-size: .72rem; color: var(--cyan); opacity: 0; transition: opacity .3s; }
+  .plan:has(input:checked) {
+    border-color: var(--violet);
+    background: color-mix(in srgb, var(--violet) 10%, transparent);
+    transform: translateY(-4px);
+  }
+  .plan:has(input:checked) .vald { opacity: 1; }
+
+  /* --- 02 Container queries --- */
+  .cq-stage { min-height: 300px; flex-direction: column; gap: .8rem; }
+  .cq-hint { color: var(--muted); font-size: .8rem; }
+  .cq-box {
+    width: min(320px, 90%); max-width: 100%;
+    min-width: 220px;
+    resize: horizontal; overflow: auto;
+    border: 1px dashed var(--border); border-radius: 14px; padding: 1rem;
+    container-type: inline-size;
+  }
+  .cq-card { display: flex; flex-direction: column; gap: .8rem; }
+  .cq-card .cq-img { border-radius: 10px; background: var(--grad); min-height: 90px; flex-shrink: 0; }
+  .cq-card h3 { font-size: .95rem; }
+  .cq-card p { color: var(--muted); font-size: .8rem; }
+  @container (min-width: 420px) {
+    .cq-card { flex-direction: row; align-items: center; }
+    .cq-card .cq-img { width: 130px; }
+  }
+
+  /* --- 03 clip-path-morf --- */
+  .clip-stage { min-height: 300px; gap: 2.5rem; flex-wrap: wrap; }
+  .clip-shape {
+    width: 150px; height: 150px;
+    background: var(--grad);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    transition: clip-path .6s cubic-bezier(.22,1,.36,1);
+    cursor: pointer;
+  }
+  .clip-shape:hover { clip-path: polygon(50% 10%, 90% 50%, 50% 90%, 10% 50%, 10% 50%, 10% 50%); }
+  .clip-blob {
+    width: 150px; height: 150px;
+    background: linear-gradient(150deg, var(--pink), var(--violet));
+    animation: blob-morph 7s ease-in-out infinite;
+  }
+  @keyframes blob-morph {
+    0%, 100% { border-radius: 58% 42% 40% 60% / 55% 48% 52% 45%; }
+    33% { border-radius: 40% 60% 62% 38% / 42% 60% 40% 58%; }
+    66% { border-radius: 62% 38% 45% 55% / 60% 40% 60% 40%; }
+  }
+
+  /* --- 04 accent-color --- */
+  .acc-stage { min-height: 240px; gap: 2.5rem; flex-wrap: wrap; }
+  .acc-group { display: flex; flex-direction: column; gap: .9rem; accent-color: var(--violet); font-size: .9rem; }
+  .acc-group label { display: flex; align-items: center; gap: .6rem; cursor: pointer; }
+  .acc-group input[type="range"] { width: 150px; }
+  .acc-group progress { width: 150px; }
+
+  /* --- 05 backdrop-filter-varianter --- */
+  .bf-stage {
+    min-height: 300px; gap: 1rem; flex-wrap: wrap;
+    background:
+      radial-gradient(200px circle at 25% 35%, #f472b6, transparent 55%),
+      radial-gradient(260px circle at 70% 60%, #22d3ee, transparent 55%),
+      radial-gradient(220px circle at 50% 90%, #8b5cf6, transparent 55%),
+      #0d0d19;
+  }
+  .bf-card {
+    width: 150px; height: 110px;
+    border-radius: 14px; border: 1px solid rgba(255,255,255,.25);
+    display: grid; place-items: center;
+    font-family: var(--mono); font-size: .72rem; color: #fff;
+    text-shadow: 0 1px 4px rgba(0,0,0,.5);
+  }
+
+  /* --- 06 Scrollbar-styling --- */
+  .sb-stage { min-height: 260px; }
+  .sb-box {
+    width: min(380px, 90%); height: 180px; overflow-y: scroll;
+    border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem;
+    color: var(--muted); font-size: .88rem; line-height: 1.7;
+    scrollbar-width: thin;
+    scrollbar-color: var(--violet) transparent;
+  }
+  .sb-box::-webkit-scrollbar { width: 8px; }
+  .sb-box::-webkit-scrollbar-thumb { background: var(--grad); border-radius: 99px; }
+  .sb-box::-webkit-scrollbar-track { background: transparent; }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="typografi.html">Typografi</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="media.html">Media</a>
+    <a href="ui.html">UI</a>
+    <a href="formular.html">Formulär</a>
+    <a href="navigation.html">Navigation</a>
+    <a href="feedback.html">Feedback</a>
+    <a href="listor.html">Listor</a>
+    <a href="tillstand.html">Tillstånd</a>
+    <a href="css.html">Modern CSS</a>
+    <a href="labb.html">Labbet</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 15</div>
+    <h1>Modern CSS</h1>
+    <p>Saker som krävde JavaScript för fem år sedan är i dag en rad CSS. Här är de nya superkrafterna — inga skript alls på den här sidan (förutom demoväljare).</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>:has() — föräldern reagerar</h2>
+      <p>Kortet stylar sig själv när dess radio-knapp är vald: <code>.plan:has(input:checked)</code>. Ingen JavaScript — klicka på korten.</p>
+    </div>
+    <div class="demo-stage has-stage">
+      <label class="plan"><input type="radio" name="plan" checked><h3>Bas</h3><div class="pris">0 kr</div><p>För hobbyprojekt</p><span class="vald">✓ VALD</span></label>
+      <label class="plan"><input type="radio" name="plan"><h3>Pro</h3><div class="pris">99 kr</div><p>För frilansare</p><span class="vald">✓ VALD</span></label>
+      <label class="plan"><input type="radio" name="plan"><h3>Team</h3><div class="pris">299 kr</div><p>För hela byrån</p><span class="vald">✓ VALD</span></label>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Container queries</h2>
+      <p>Kortet byter layout efter sin <em>egen</em> bredd, inte skärmens. Dra i handtaget nere till höger på den streckade rutan.</p>
+    </div>
+    <div class="demo-stage cq-stage">
+      <div class="cq-hint">↘ Dra i rutans högra hörn</div>
+      <div class="cq-box">
+        <div class="cq-card">
+          <div class="cq-img"></div>
+          <div><h3>Anpasslig komponent</h3><p>Under 420 px staplas jag. Över det lägger jag mig i rad — oavsett var på sidan jag placeras.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>clip-path &amp; morphande former</h2>
+      <p>Vänster: en hexagon som blir en romb vid hover. Höger: en blob som ständigt byter form med animerad <code>border-radius</code>.</p>
+    </div>
+    <div class="demo-stage clip-stage">
+      <div class="clip-shape"></div>
+      <div class="clip-blob"></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>accent-color</h2>
+      <p>En enda rad ger alla inbyggda kontroller din varumärkesfärg — kryssrutor, radioknappar, reglage och progress.</p>
+    </div>
+    <div class="demo-stage acc-stage">
+      <div class="acc-group">
+        <label><input type="checkbox" checked> Aviseringar</label>
+        <label><input type="checkbox"> Veckobrev</label>
+        <label><input type="radio" name="acc" checked> Standard</label>
+        <label><input type="radio" name="acc"> Kompakt</label>
+      </div>
+      <div class="acc-group">
+        <label>Volym <input type="range" value="70"></label>
+        <label>Laddar <progress value="0.6"></progress></label>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>backdrop-filter-varianter</h2>
+      <p>Samma bakgrund, fyra olika glas: blur, mättnad, gråskala och invertering.</p>
+    </div>
+    <div class="demo-stage bf-stage">
+      <div class="bf-card" style="backdrop-filter:blur(12px)">blur(12px)</div>
+      <div class="bf-card" style="backdrop-filter:saturate(3)">saturate(3)</div>
+      <div class="bf-card" style="backdrop-filter:grayscale(1)">grayscale(1)</div>
+      <div class="bf-card" style="backdrop-filter:invert(1)">invert(1)</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">06</span>Egen scrollbar</h2>
+      <p>En smal gradient-scrollbar som matchar temat i stället för webbläsarens grå standard.</p>
+    </div>
+    <div class="demo-stage sb-stage">
+      <div class="sb-box">
+        Scrolla här inne och titta på listen till höger.<br><br>
+        Med <code>scrollbar-width</code> och <code>scrollbar-color</code> (standard) plus <code>::-webkit-scrollbar</code> (Chrome/Safari) täcker du alla moderna webbläsare.<br><br>
+        Regel nummer ett: gör aldrig scrollbaren osynlig utan att erbjuda en annan tydlig signal om att ytan går att scrolla.<br><br>
+        Regel nummer två: behåll tillräcklig kontrast — en scrollbar man inte hittar är värre än en ful.<br><br>
+        Slutet! 🎉
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>Nästa kategori: <a href="tillstand.html">Tillstånd →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script src="js/code-view.js"></script>
+</body>
+</html>

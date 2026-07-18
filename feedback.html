@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feedback &amp; notiser — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
+<style>
+  /* --- 01 Toast-notiser --- */
+  .toast-stage { min-height: 240px; gap: 1rem; flex-wrap: wrap; }
+  #toast-zone {
+    position: fixed; top: 4.5rem; right: 1.2rem; z-index: 400;
+    display: flex; flex-direction: column; gap: .6rem;
+    pointer-events: none;
+  }
+  .toast {
+    display: flex; align-items: center; gap: .7rem;
+    min-width: 240px; max-width: 320px;
+    padding: .8rem 1rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--tc, var(--violet));
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.4);
+    font-size: .88rem;
+    pointer-events: auto;
+    animation: toast-in .4s cubic-bezier(.22,1.3,.36,1);
+  }
+  .toast.bye { animation: toast-out .3s forwards; }
+  @keyframes toast-in { from { opacity: 0; transform: translateX(60px); } }
+  @keyframes toast-out { to { opacity: 0; transform: translateX(60px); } }
+  .toast button { margin-left: auto; border: none; background: none; color: var(--muted); cursor: pointer; font-size: 1rem; }
+
+  /* --- 02 Modal --- */
+  .modal-stage { min-height: 220px; }
+  dialog.modal {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: var(--bg2);
+    color: var(--text);
+    padding: 2rem;
+    max-width: min(90vw, 420px);
+    box-shadow: 0 30px 90px rgba(0,0,0,.6);
+  }
+  dialog.modal::backdrop { background: rgba(5,5,10,.65); backdrop-filter: blur(6px); }
+  dialog.modal[open] { animation: modal-in .35s cubic-bezier(.22,1.3,.36,1); }
+  @keyframes modal-in { from { opacity: 0; transform: translateY(24px) scale(.95); } }
+  dialog.modal h3 { margin-bottom: .5rem; }
+  dialog.modal p { color: var(--muted); font-size: .9rem; margin-bottom: 1.4rem; }
+  .modal-row { display: flex; gap: .8rem; justify-content: flex-end; }
+
+  /* --- 03 Tooltips --- */
+  .tip-stage { min-height: 260px; gap: 2rem; flex-wrap: wrap; }
+  [data-tip] { position: relative; }
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute; left: 50%; bottom: calc(100% + 10px);
+    transform: translateX(-50%) translateY(4px);
+    background: var(--text); color: var(--bg);
+    font-size: .75rem; font-weight: 600;
+    padding: .4rem .7rem; border-radius: 8px;
+    white-space: nowrap;
+    opacity: 0; pointer-events: none;
+    transition: opacity .2s, transform .2s;
+  }
+  [data-tip]::before {
+    content: "";
+    position: absolute; left: 50%; bottom: calc(100% + 4px);
+    transform: translateX(-50%);
+    border: 6px solid transparent; border-top-color: var(--text);
+    opacity: 0; transition: opacity .2s;
+  }
+  [data-tip]:hover::after { opacity: 1; transform: translateX(-50%); }
+  [data-tip]:hover::before { opacity: 1; }
+
+  /* --- 04 Kopiera till urklipp --- */
+  .copy-stage { min-height: 220px; }
+  .copy-box {
+    display: flex; align-items: center; gap: 1rem;
+    background: #0a0a14; border: 1px solid var(--border);
+    border-radius: 12px; padding: 1rem 1.2rem;
+    font-family: var(--mono); font-size: .85rem; color: #c9c9e0;
+    max-width: 100%; overflow-x: auto;
+  }
+  .copy-box .cmd::before { content: "$ "; color: var(--cyan); }
+  .copy-btn {
+    flex-shrink: 0;
+    border: 1px solid var(--border); background: var(--card);
+    color: var(--text); border-radius: 8px;
+    padding: .45rem .8rem; font-size: .78rem; font-family: var(--font);
+    cursor: pointer; transition: background .2s, color .2s;
+  }
+  .copy-btn.done { background: #34d399; color: #05231a; border-color: transparent; }
+
+  /* --- 05 Laddare --- */
+  .spin-stage { min-height: 240px; gap: clamp(1.5rem, 6vw, 3.5rem); flex-wrap: wrap; }
+  .spin-item { display: flex; flex-direction: column; align-items: center; gap: .8rem; color: var(--muted); font-size: .75rem; font-family: var(--mono); }
+  .sp-ring {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 3px solid var(--card-hover); border-top-color: var(--violet);
+    animation: sp-rot .8s linear infinite;
+  }
+  @keyframes sp-rot { to { transform: rotate(360deg); } }
+  .sp-dots { display: flex; gap: 6px; height: 38px; align-items: center; }
+  .sp-dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--cyan); animation: sp-bounce 1s infinite; }
+  .sp-dots i:nth-child(2) { animation-delay: .15s; }
+  .sp-dots i:nth-child(3) { animation-delay: .3s; }
+  @keyframes sp-bounce { 0%, 60%, 100% { transform: none; opacity: .4; } 30% { transform: translateY(-10px); opacity: 1; } }
+  .sp-bars { display: flex; gap: 4px; height: 38px; align-items: center; }
+  .sp-bars i { width: 5px; height: 26px; border-radius: 3px; background: var(--pink); animation: sp-eq 1s ease-in-out infinite; }
+  .sp-bars i:nth-child(2) { animation-delay: .12s; }
+  .sp-bars i:nth-child(3) { animation-delay: .24s; }
+  .sp-bars i:nth-child(4) { animation-delay: .36s; }
+  @keyframes sp-eq { 0%, 100% { transform: scaleY(.35); } 50% { transform: scaleY(1); } }
+  .sp-pulse { position: relative; width: 38px; height: 38px; }
+  .sp-pulse::before, .sp-pulse::after {
+    content: ""; position: absolute; inset: 0; border-radius: 50%;
+    border: 2px solid var(--violet);
+    animation: sp-wave 1.6s ease-out infinite;
+  }
+  .sp-pulse::after { animation-delay: .8s; }
+  @keyframes sp-wave { from { transform: scale(.3); opacity: 1; } to { transform: scale(1.15); opacity: 0; } }
+
+  /* --- 06 Progress --- */
+  .prog-stage { min-height: 260px; flex-direction: column; gap: 1.6rem; }
+  .prog-wrap { width: min(340px, 90%); }
+  .prog-top { display: flex; justify-content: space-between; font-size: .8rem; color: var(--muted); margin-bottom: .4rem; font-family: var(--mono); }
+  .prog-bar { height: 8px; border-radius: 999px; background: var(--card-hover); overflow: hidden; }
+  .prog-bar > div { height: 100%; width: 0%; background: var(--grad); border-radius: 999px; transition: width .3s; }
+  .prog-stripe {
+    height: 8px; border-radius: 999px; overflow: hidden;
+    background: repeating-linear-gradient(-45deg, var(--violet) 0 10px, color-mix(in srgb, var(--violet) 55%, transparent) 10px 20px);
+    background-size: 200% 100%;
+    animation: stripe-move 1.2s linear infinite;
+  }
+  @keyframes stripe-move { to { background-position: 28.28px 0; } }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="typografi.html">Typografi</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="media.html">Media</a>
+    <a href="ui.html">UI</a>
+    <a href="formular.html">Formulär</a>
+    <a href="navigation.html">Navigation</a>
+    <a href="feedback.html">Feedback</a>
+    <a href="listor.html">Listor</a>
+    <a href="tillstand.html">Tillstånd</a>
+    <a href="css.html">Modern CSS</a>
+    <a href="labb.html">Labbet</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 11</div>
+    <h1>Feedback &amp; notiser</h1>
+    <p>Bra gränssnitt svarar alltid. Toasts, modaler, tooltips och laddare berättar vad som händer — utan att skrika.</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>Toast-notiser</h2>
+      <p>Små meddelanden som glider in uppe till höger, staplas snyggt och försvinner själva efter några sekunder.</p>
+    </div>
+    <div class="demo-stage toast-stage">
+      <button class="btn" data-toast="ok">✅ Lyckades</button>
+      <button class="btn" data-toast="err">❌ Fel</button>
+      <button class="btn" data-toast="info">💬 Info</button>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Modal med skummad bakgrund</h2>
+      <p>Byggd på det inbyggda <code>&lt;dialog&gt;</code>-elementet: fokusfälla, Esc-stängning och backdrop på köpet.</p>
+    </div>
+    <div class="demo-stage modal-stage">
+      <button class="btn" id="modal-open">Öppna modal</button>
+      <dialog class="modal" id="modal">
+        <h3>Radera projektet?</h3>
+        <p>Det här går inte att ångra. Projektet och all dess data försvinner för alltid.</p>
+        <div class="modal-row">
+          <button class="btn" id="modal-cancel">Avbryt</button>
+          <button class="btn" id="modal-ok" style="border-color:#f87171;color:#f87171">Radera</button>
+        </div>
+      </dialog>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>Tooltips</h2>
+      <p>Ren CSS: texten ligger i ett <code>data-tip</code>-attribut och ritas med <code>::after</code> + en pilspets med <code>::before</code>.</p>
+    </div>
+    <div class="demo-stage tip-stage">
+      <button class="btn" data-tip="Sparar dokumentet">💾 Spara</button>
+      <button class="btn" data-tip="Delar med teamet">🔗 Dela</button>
+      <button class="btn" data-tip="Kan inte ångras!">🗑️ Radera</button>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>Kopiera till urklipp</h2>
+      <p>Klipp­bords-API:t plus omedelbar feedback — knappen blir grön och säger vad som hänt.</p>
+    </div>
+    <div class="demo-stage copy-stage">
+      <div class="copy-box">
+        <span class="cmd" id="copy-text">npm create vite@latest min-sajt</span>
+        <button class="copy-btn" id="copy-btn">Kopiera</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>Laddare</h2>
+      <p>Fyra klassiska spinners i ren CSS — ring, studsande prickar, equalizer och puls.</p>
+    </div>
+    <div class="demo-stage spin-stage">
+      <div class="spin-item"><div class="sp-ring"></div>RING</div>
+      <div class="spin-item"><div class="sp-dots"><i></i><i></i><i></i></div>PRICKAR</div>
+      <div class="spin-item"><div class="sp-bars"><i></i><i></i><i></i><i></i></div>EQUALIZER</div>
+      <div class="spin-item"><div class="sp-pulse"></div>PULS</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">06</span>Progressbar</h2>
+      <p>En bestämd mätare med procent (klicka för att simulera nedladdning) och en obestämd randig variant för okänd väntetid.</p>
+    </div>
+    <div class="demo-stage prog-stage">
+      <div class="prog-wrap">
+        <div class="prog-top"><span>nedladdning.zip</span><span id="prog-pct">0%</span></div>
+        <div class="prog-bar"><div id="prog-fill"></div></div>
+      </div>
+      <div class="prog-wrap">
+        <div class="prog-top"><span>bearbetar…</span><span>∞</span></div>
+        <div class="prog-stripe"></div>
+      </div>
+      <button class="btn" id="prog-start">▶ Starta nedladdning</button>
+    </div>
+  </section>
+</main>
+
+<div id="toast-zone"></div>
+
+<footer class="site-foot">
+  <span>Nästa kategori: <a href="media.html">Media →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- 01 Toast-notiser --- */
+(function () {
+  var zone = document.getElementById("toast-zone");
+  var types = {
+    ok:   { c: "#34d399", t: "Sparat! Dina ändringar är säkra." },
+    err:  { c: "#f87171", t: "Kunde inte spara — försök igen." },
+    info: { c: "#60a5fa", t: "3 nya kommentarer väntar." }
+  };
+  function toast(type) {
+    var cfg = types[type];
+    var el = document.createElement("div");
+    el.className = "toast";
+    el.style.setProperty("--tc", cfg.c);
+    el.innerHTML = "<span>" + cfg.t + "</span><button aria-label='Stäng'>✕</button>";
+    el.querySelector("button").addEventListener("click", function () { kill(el); });
+    zone.appendChild(el);
+    setTimeout(function () { kill(el); }, 3800);
+  }
+  function kill(el) {
+    if (!el.parentElement) return;
+    el.classList.add("bye");
+    setTimeout(function () { el.remove(); }, 300);
+  }
+  document.querySelectorAll("[data-toast]").forEach(function (b) {
+    b.addEventListener("click", function () { toast(b.dataset.toast); });
+  });
+})();
+
+/* --- 02 Modal --- */
+(function () {
+  var dlg = document.getElementById("modal");
+  document.getElementById("modal-open").addEventListener("click", function () { dlg.showModal(); });
+  document.getElementById("modal-cancel").addEventListener("click", function () { dlg.close(); });
+  document.getElementById("modal-ok").addEventListener("click", function () { dlg.close(); });
+  dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
+})();
+
+/* --- 04 Kopiera till urklipp --- */
+(function () {
+  var btn = document.getElementById("copy-btn");
+  var text = document.getElementById("copy-text").textContent;
+  btn.addEventListener("click", function () {
+    navigator.clipboard.writeText(text).then(function () {
+      btn.textContent = "✓ Kopierat!";
+      btn.classList.add("done");
+      setTimeout(function () { btn.textContent = "Kopiera"; btn.classList.remove("done"); }, 1800);
+    });
+  });
+})();
+
+/* --- 06 Progress --- */
+(function () {
+  var fill = document.getElementById("prog-fill");
+  var pct = document.getElementById("prog-pct");
+  var btn = document.getElementById("prog-start");
+  var timer = null;
+  btn.addEventListener("click", function () {
+    clearInterval(timer);
+    var p = 0;
+    timer = setInterval(function () {
+      p += Math.random() * 9 + 2; // ojämn fart känns äkta
+      if (p >= 100) { p = 100; clearInterval(timer); }
+      fill.style.width = p + "%";
+      pct.textContent = Math.round(p) + "%";
+    }, 180);
+  });
+})();
+</script>
+<script src="js/code-view.js"></script>
+</body>
+</html>
