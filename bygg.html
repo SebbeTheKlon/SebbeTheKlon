@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Byggverkstaden — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
+<style>
+  .bygg-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 1.2rem;
+    align-items: start;
+  }
+  @media (max-width: 900px) { .bygg-layout { grid-template-columns: 1fr; } }
+
+  /* Sidofältet med byggklossar */
+  .bygg-side {
+    position: sticky;
+    top: 76px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--card);
+    padding: 1.1rem;
+    max-height: calc(100vh - 96px);
+    overflow-y: auto;
+  }
+  @media (max-width: 900px) { .bygg-side { position: static; max-height: none; } }
+  .bs-label {
+    font-family: var(--mono);
+    font-size: .66rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: .4rem;
+  }
+  .bs-opts { display: flex; flex-wrap: wrap; gap: .4rem; }
+  .bs-btn {
+    padding: .35rem .75rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-family: var(--font);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+  }
+  .bs-btn:hover { border-color: var(--violet); }
+  .bs-btn.active { background: var(--grad); color: #fff; border-color: transparent; }
+  .bs-swatch {
+    width: 27px;
+    height: 27px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform .2s, border-color .2s;
+  }
+  .bs-swatch.active { border-color: var(--text); transform: scale(1.15); }
+  .bs-check { display: flex; align-items: center; gap: .55rem; font-size: .85rem; cursor: pointer; margin-bottom: .45rem; accent-color: var(--violet); }
+  .bygg-side input[type="text"] {
+    width: 100%;
+    padding: .6rem .8rem;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: .85rem;
+    outline: none;
+    margin-bottom: .45rem;
+  }
+  .bygg-side input[type="text"]:focus { border-color: var(--violet); }
+  .bs-actions { display: flex; flex-direction: column; gap: .5rem; }
+  .bs-actions .btn { justify-content: center; }
+
+  /* Förhandsgranskningen: falsk webbläsarram + iframe */
+  .pv-shell {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--bg2);
+  }
+  .pv-chrome {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .6rem .9rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .pv-chrome i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+  .pv-chrome i:nth-child(1) { background: #f87171; }
+  .pv-chrome i:nth-child(2) { background: #fbbf24; }
+  .pv-chrome i:nth-child(3) { background: #34d399; }
+  .pv-chrome span {
+    flex: 1;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: .68rem;
+    color: var(--muted);
+    background: var(--card);
+    border-radius: 6px;
+    padding: .25rem .8rem;
+  }
+  #pv-frame { display: block; width: 100%; height: min(72vh, 780px); border: none; background: #0a0a12; }
+
+  /* Kodmodal */
+  dialog.code-dlg {
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--bg2);
+    color: var(--text);
+    padding: 0;
+    width: min(92vw, 840px);
+  }
+  dialog.code-dlg::backdrop { background: rgba(5,5,10,.7); backdrop-filter: blur(6px); }
+  .cd-head { display: flex; align-items: center; gap: .8rem; padding: .8rem 1.1rem; border-bottom: 1px solid var(--border); }
+  .cd-head strong { flex: 1; font-size: .92rem; }
+  .cd-head .btn { padding: .4rem .9rem; font-size: .8rem; }
+  .code-dlg pre {
+    margin: 0;
+    padding: 1rem 1.2rem;
+    max-height: 60vh;
+    overflow: auto;
+    font-family: var(--mono);
+    font-size: .74rem;
+    line-height: 1.55;
+    color: #c9c9e0;
+    background: #0a0a14;
+    white-space: pre;
+  }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="alla.html">Alla effekter</a>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="typografi.html">Typografi</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="media.html">Media</a>
+    <a href="ui.html">UI</a>
+    <a href="formular.html">Formulär</a>
+    <a href="navigation.html">Navigation</a>
+    <a href="feedback.html">Feedback</a>
+    <a href="listor.html">Listor</a>
+    <a href="tillstand.html">Tillstånd</a>
+    <a href="css.html">Modern CSS</a>
+    <a href="labb.html">Labbet</a>
+    <a href="bygg.html">Bygg 🧰</a>
+  </nav>
+</header>
+
+<main class="page" style="max-width:1280px">
+  <div class="page-intro">
+    <div class="kicker">Byggverkstaden</div>
+    <h1>Bygg din egen sida</h1>
+    <p>Plocka byggklossar i sidofältet — förhandsgranskningen uppdateras direkt. När du är nöjd: visa koden eller ladda ner en färdig, fristående HTML-fil. Det du ser är exakt det du får.</p>
+  </div>
+
+  <div class="bygg-layout">
+    <aside class="bygg-side" id="bygg-side">
+      <div>
+        <div class="bs-label">Innehåll</div>
+        <input type="text" id="in-titel" placeholder="Rubrik…" maxlength="40">
+        <input type="text" id="in-under" placeholder="Undertext…" maxlength="120">
+      </div>
+      <div id="bs-groups"></div>
+      <div>
+        <div class="bs-label">Sektioner</div>
+        <label class="bs-check"><input type="checkbox" id="sekt-kort" checked> Kortsektion (3 kort)</label>
+        <label class="bs-check"><input type="checkbox" id="sekt-marquee"> Rullande band</label>
+        <label class="bs-check"><input type="checkbox" id="sekt-footer" checked> Footer</label>
+      </div>
+      <div class="bs-actions">
+        <button class="btn" id="show-code">&lt;/&gt; Visa koden</button>
+        <button class="btn" id="download">⬇ Ladda ner HTML</button>
+        <button class="btn" id="reset-bygg">↺ Återställ</button>
+      </div>
+    </aside>
+
+    <div class="pv-shell">
+      <div class="pv-chrome"><i></i><i></i><i></i><span>min-sajt.html</span></div>
+      <iframe id="pv-frame" title="Förhandsgranskning av din sida"></iframe>
+    </div>
+  </div>
+</main>
+
+<dialog class="code-dlg" id="code-dlg">
+  <div class="cd-head">
+    <strong>min-sajt.html</strong>
+    <button class="btn" id="copy-code">Kopiera</button>
+    <button class="btn" id="close-code">✕ Stäng</button>
+  </div>
+  <pre><code id="code-out"></code></pre>
+</dialog>
+
+<footer class="site-foot">
+  <span>Byggd med klossar från <a href="alla.html">hela biblioteket</a>.</span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+(function () {
+  var KEY = "fx-bygg";
+  var DEF = {
+    accent: "neon", bg: "aurora", rubrik: "gradient", knapp: "fylld", kort: "spotlight",
+    sektKort: true, sektMarquee: false, sektFooter: true,
+    titel: "Hej världen", under: "En liten sida byggd i Effektverkstan — byt klossar i sidofältet tills den känns som din."
+  };
+  var state;
+  try { state = Object.assign({}, DEF, JSON.parse(localStorage.getItem(KEY)) || {}); }
+  catch (e) { state = Object.assign({}, DEF); }
+
+  var ACCENTS = {
+    neon:  ["#8b5cf6", "#22d3ee"],
+    hav:   ["#3b82f6", "#67e8f9"],
+    skog:  ["#10b981", "#a3e635"],
+    sol:   ["#f97316", "#f472b6"],
+    rubin: ["#ef4444", "#fbbf24"]
+  };
+
+  var GROUPS = [
+    { key: "accent", label: "Färgpar", swatch: true,
+      opts: Object.keys(ACCENTS).map(function (k) { return [k, "linear-gradient(120deg," + ACCENTS[k][0] + "," + ACCENTS[k][1] + ")"]; }) },
+    { key: "bg", label: "Bakgrund", opts: [["morkt", "Mörk"], ["aurora", "Aurora"], ["gradient", "Gradient"], ["rutnat", "Rutnät"]] },
+    { key: "rubrik", label: "Rubrikstil", opts: [["gradient", "Gradient"], ["neon", "Neon"], ["kontur", "Kontur"], ["skrivmaskin", "Skrivmaskin"]] },
+    { key: "knapp", label: "Knappstil", opts: [["fylld", "Fylld"], ["kontur", "Kontur"], ["glans", "Glans-svep"]] },
+    { key: "kort", label: "Kortstil", opts: [["spotlight", "Spotlight"], ["glas", "Glas"], ["ram", "Enkel ram"]] }
+  ];
+
+  /* ---------- Generatorn: bygger hela HTML-dokumentet ---------- */
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+
+  function buildDoc(s) {
+    var a1 = ACCENTS[s.accent][0], a2 = ACCENTS[s.accent][1];
+    var css = [];
+    var body = [];
+    var js = [];
+
+    css.push(
+      "*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}",
+      ":root{--a1:" + a1 + ";--a2:" + a2 + "}",
+      "body{background:#0a0a12;color:#e9e9f2;font-family:ui-sans-serif,system-ui,sans-serif;line-height:1.6;overflow-x:hidden}",
+      ".hero{min-height:88vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem;position:relative}",
+      ".hero h1{font-size:clamp(2.4rem,7vw,4.5rem);letter-spacing:-.02em;line-height:1.1;margin-bottom:1rem}",
+      ".hero p{color:#9a9ab4;max-width:520px;margin-bottom:2rem}",
+      ".knapp{display:inline-block;padding:.85rem 2rem;border-radius:999px;font-size:1rem;font-weight:600;cursor:pointer;text-decoration:none;border:none;font-family:inherit}"
+    );
+
+    /* Bakgrund */
+    if (s.bg === "aurora") {
+      css.push(
+        ".bg{position:fixed;inset:0;z-index:-1;overflow:hidden;filter:blur(70px) saturate(1.3);opacity:.5}",
+        ".bg i{position:absolute;width:45vw;aspect-ratio:1;border-radius:50%;mix-blend-mode:screen}",
+        ".bg i:nth-child(1){background:var(--a1);top:-10%;left:5%;animation:d1 20s ease-in-out infinite alternate}",
+        ".bg i:nth-child(2){background:var(--a2);bottom:-15%;right:0;animation:d2 26s ease-in-out infinite alternate}",
+        "@keyframes d1{to{transform:translate(40%,30%) scale(1.2)}}",
+        "@keyframes d2{to{transform:translate(-35%,-25%) scale(.85)}}"
+      );
+      body.push('<div class="bg" aria-hidden="true"><i></i><i></i></div>');
+    } else if (s.bg === "gradient") {
+      css.push(
+        ".bg{position:fixed;inset:0;z-index:-1;opacity:.35;background:linear-gradient(-45deg,var(--a1),#0a0a12,var(--a2),#0a0a12);background-size:400% 400%;animation:gm 14s ease infinite}",
+        "@keyframes gm{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}"
+      );
+      body.push('<div class="bg" aria-hidden="true"></div>');
+    } else if (s.bg === "rutnat") {
+      css.push(".bg{position:fixed;inset:0;z-index:-1;opacity:.3;background-image:radial-gradient(var(--a1) 1px,transparent 1.5px);background-size:30px 30px}");
+      body.push('<div class="bg" aria-hidden="true"></div>');
+    }
+
+    /* Rubrikstil */
+    var h1inner = esc(s.titel || "Hej världen");
+    if (s.rubrik === "gradient") {
+      css.push(
+        ".hero h1{background:linear-gradient(120deg,var(--a1),var(--a2),var(--a1));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:hue 7s linear infinite}",
+        "@keyframes hue{to{background-position:300% 0}}"
+      );
+    } else if (s.rubrik === "neon") {
+      css.push(".hero h1{color:#fff;font-weight:300;letter-spacing:.08em;text-shadow:0 0 6px #fff,0 0 18px var(--a2),0 0 44px var(--a2)}");
+    } else if (s.rubrik === "kontur") {
+      css.push(".hero h1{color:transparent;-webkit-text-stroke:1.5px #e9e9f2;font-weight:800}");
+    } else if (s.rubrik === "skrivmaskin") {
+      css.push(
+        ".hero h1{font-family:ui-monospace,monospace;font-size:clamp(1.6rem,5vw,3rem);color:var(--a2)}",
+        ".hero h1 .caret{display:inline-block;width:.55ch;background:var(--a2);animation:blink 1s step-end infinite}",
+        "@keyframes blink{50%{opacity:0}}"
+      );
+      h1inner = '<span id="tw"></span><span class="caret">&nbsp;</span>';
+      js.push(
+        "(function(){var el=document.getElementById('tw');var txt=" + JSON.stringify(s.titel || "Hej världen") + ";var i=0,del=false;",
+        "function t(){if(!del){i++;el.textContent=txt.slice(0,i);if(i===txt.length){del=true;setTimeout(t,1600);return}}else{i--;el.textContent=txt.slice(0,i);if(i===0)del=false}setTimeout(t,del?40:70)}t();})();"
+      );
+    }
+
+    /* Knappstil */
+    if (s.knapp === "fylld") {
+      css.push(".knapp{background:linear-gradient(120deg,var(--a1),var(--a2));color:#fff;transition:transform .25s,box-shadow .25s}",
+               ".knapp:hover{transform:translateY(-3px);box-shadow:0 12px 30px color-mix(in srgb,var(--a1) 45%,transparent)}");
+    } else if (s.knapp === "kontur") {
+      css.push(".knapp{background:transparent;color:var(--a2);border:1.5px solid var(--a2);position:relative;z-index:1;overflow:hidden;transition:color .3s}",
+               ".knapp::before{content:'';position:absolute;inset:0;background:var(--a2);transform:translateY(101%);transition:transform .3s;z-index:-1}",
+               ".knapp:hover{color:#0a0a12}.knapp:hover::before{transform:translateY(0)}");
+    } else {
+      css.push(".knapp{background:linear-gradient(120deg,var(--a1),var(--a2));color:#fff;position:relative;overflow:hidden}",
+               ".knapp::after{content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);transition:left .6s}",
+               ".knapp:hover::after{left:130%}");
+    }
+
+    body.push(
+      '<section class="hero">',
+      "  <h1>" + h1inner + "</h1>",
+      "  <p>" + esc(s.under || "") + "</p>",
+      '  <a class="knapp" href="#">Kom igång</a>',
+      "</section>"
+    );
+
+    /* Kortsektion */
+    if (s.sektKort) {
+      css.push(
+        ".kort-sekt{max-width:1000px;margin:0 auto;padding:3rem 1.5rem 5rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}",
+        ".kort{position:relative;border-radius:16px;padding:1.6rem;overflow:hidden}",
+        ".kort h2{font-size:1.05rem;margin-bottom:.4rem}",
+        ".kort p{color:#9a9ab4;font-size:.88rem}"
+      );
+      if (s.kort === "spotlight") {
+        css.push(
+          ".kort{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09)}",
+          ".kort::before{content:'';position:absolute;inset:0;background:radial-gradient(280px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--a2) 16%,transparent),transparent 60%);opacity:0;transition:opacity .3s}",
+          ".kort:hover::before{opacity:1}",
+          ".kort>*{position:relative}"
+        );
+        js.push(
+          "document.querySelectorAll('.kort').forEach(function(k){k.addEventListener('mousemove',function(e){var r=k.getBoundingClientRect();k.style.setProperty('--mx',(e.clientX-r.left)+'px');k.style.setProperty('--my',(e.clientY-r.top)+'px');});});"
+        );
+      } else if (s.kort === "glas") {
+        css.push(".kort{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}");
+      } else {
+        css.push(".kort{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.1);transition:transform .3s,border-color .3s}",
+                 ".kort:hover{transform:translateY(-4px);border-color:var(--a1)}");
+      }
+      body.push(
+        '<section class="kort-sekt">',
+        "  <div class=\"kort\"><h2>⚡ Snabbt</h2><p>Ren HTML, CSS och JavaScript — inga beroenden att vänta på.</p></div>",
+        "  <div class=\"kort\"><h2>🎨 Ditt</h2><p>Byt färger, stilar och sektioner tills sidan känns som din.</p></div>",
+        "  <div class=\"kort\"><h2>🚀 Redo</h2><p>Ladda upp filen var som helst — den fungerar direkt.</p></div>",
+        "</section>"
+      );
+    }
+
+    /* Rullande band */
+    if (s.sektMarquee) {
+      css.push(
+        ".band{overflow:hidden;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);padding:1rem 0;margin-bottom:3rem}",
+        ".band div{display:flex;gap:3rem;white-space:nowrap;font-weight:700;font-size:1.2rem;color:#9a9ab4;animation:mq 16s linear infinite}",
+        ".band span{color:var(--a2)}",
+        "@keyframes mq{to{transform:translateX(-50%)}}"
+      );
+      body.push(
+        '<div class="band" aria-hidden="true"><div>',
+        "  Design <span>✦</span> Utveckling <span>✦</span> Animation <span>✦</span> Idéer <span>✦</span> Design <span>✦</span> Utveckling <span>✦</span> Animation <span>✦</span> Idéer <span>✦</span>",
+        "</div></div>"
+      );
+    }
+
+    /* Footer */
+    if (s.sektFooter) {
+      css.push(".fot{text-align:center;padding:2.5rem 1rem;color:#9a9ab4;font-size:.85rem;border-top:1px solid rgba(255,255,255,.08)}",
+               ".fot b{background:linear-gradient(120deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}");
+      body.push('<footer class="fot">Byggd med <b>Effektverkstan</b> ✦ ' + new Date().getFullYear() + "</footer>");
+    }
+
+    css.push("@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}");
+
+    return "<!DOCTYPE html>\n<html lang=\"sv\">\n<head>\n<meta charset=\"UTF-8\">\n" +
+      "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n" +
+      "<title>" + esc(s.titel || "Min sajt") + "</title>\n" +
+      "<style>\n" + css.join("\n") + "\n</style>\n</head>\n<body>\n" +
+      body.join("\n") + "\n" +
+      (js.length ? "<script>\n" + js.join("\n") + "\n<\/script>\n" : "") +
+      "</body>\n</html>\n";
+  }
+
+  /* ---------- UI ---------- */
+  var groupsEl = document.getElementById("bs-groups");
+  GROUPS.forEach(function (g) {
+    var wrap = document.createElement("div");
+    wrap.style.marginBottom = ".9rem";
+    var html = '<div class="bs-label">' + g.label + '</div><div class="bs-opts">';
+    g.opts.forEach(function (o) {
+      if (g.swatch) html += '<button class="bs-swatch" data-key="' + g.key + '" data-val="' + o[0] + '" style="background:' + o[1] + '" title="' + o[0] + '"></button>';
+      else html += '<button class="bs-btn" data-key="' + g.key + '" data-val="' + o[0] + '">' + o[1] + "</button>";
+    });
+    wrap.innerHTML = html + "</div>";
+    groupsEl.appendChild(wrap);
+  });
+
+  var frame = document.getElementById("pv-frame");
+  var tIn = document.getElementById("in-titel");
+  var uIn = document.getElementById("in-under");
+  tIn.value = state.titel;
+  uIn.value = state.under;
+
+  function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+  function mark() {
+    document.querySelectorAll("#bs-groups [data-key]").forEach(function (b) {
+      b.classList.toggle("active", state[b.dataset.key] === b.dataset.val);
+    });
+    document.getElementById("sekt-kort").checked = state.sektKort;
+    document.getElementById("sekt-marquee").checked = state.sektMarquee;
+    document.getElementById("sekt-footer").checked = state.sektFooter;
+  }
+  function render() { frame.srcdoc = buildDoc(state); }
+
+  groupsEl.addEventListener("click", function (e) {
+    var b = e.target.closest("[data-key]");
+    if (!b) return;
+    state[b.dataset.key] = b.dataset.val;
+    save(); mark(); render();
+  });
+  [["sekt-kort", "sektKort"], ["sekt-marquee", "sektMarquee"], ["sekt-footer", "sektFooter"]].forEach(function (pair) {
+    document.getElementById(pair[0]).addEventListener("change", function (e) {
+      state[pair[1]] = e.target.checked;
+      save(); render();
+    });
+  });
+  var deb;
+  function onText() {
+    state.titel = tIn.value;
+    state.under = uIn.value;
+    save();
+    clearTimeout(deb);
+    deb = setTimeout(render, 350); // vänta tills man skrivit klart
+  }
+  tIn.addEventListener("input", onText);
+  uIn.addEventListener("input", onText);
+
+  /* Kodmodal, kopiera, ladda ner, återställ */
+  var dlg = document.getElementById("code-dlg");
+  document.getElementById("show-code").addEventListener("click", function () {
+    document.getElementById("code-out").textContent = buildDoc(state);
+    dlg.showModal();
+  });
+  document.getElementById("close-code").addEventListener("click", function () { dlg.close(); });
+  dlg.addEventListener("click", function (e) { if (e.target === dlg) dlg.close(); });
+  document.getElementById("copy-code").addEventListener("click", function () {
+    var b = this;
+    navigator.clipboard.writeText(buildDoc(state)).then(function () {
+      b.textContent = "✓ Kopierat!";
+      setTimeout(function () { b.textContent = "Kopiera"; }, 1600);
+    });
+  });
+  document.getElementById("download").addEventListener("click", function () {
+    var blob = new Blob([buildDoc(state)], { type: "text/html;charset=utf-8" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "min-sajt.html";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+  document.getElementById("reset-bygg").addEventListener("click", function () {
+    state = Object.assign({}, DEF);
+    localStorage.removeItem(KEY);
+    tIn.value = state.titel;
+    uIn.value = state.under;
+    mark(); render();
+  });
+
+  mark();
+  render();
+})();
+</script>
+</body>
+</html>
