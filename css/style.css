@@ -335,6 +335,48 @@ body::after {
   white-space: pre;
 }
 
+/* --- Sajtomfattande effekter (injiceras av js/fx.js) --- */
+.site-fx {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.site-fx canvas { width: 100%; height: 100%; display: block; }
+.site-fx.fx-aurora { filter: blur(70px) saturate(1.3); opacity: .45; }
+.site-fx.fx-aurora i {
+  position: absolute;
+  width: 45vw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+}
+.site-fx.fx-aurora .fxb1 { top: -12%; left: 2%; animation: fx-drift1 22s ease-in-out infinite alternate; }
+.site-fx.fx-aurora .fxb2 { bottom: -18%; left: 38%; animation: fx-drift2 28s ease-in-out infinite alternate; }
+.site-fx.fx-aurora .fxb3 { top: -4%; right: -6%; animation: fx-drift3 25s ease-in-out infinite alternate; }
+@keyframes fx-drift1 { to { transform: translate(45%, 35%) scale(1.2); } }
+@keyframes fx-drift2 { to { transform: translate(-35%, -25%) scale(.85); } }
+@keyframes fx-drift3 { to { transform: translate(-40%, 40%) scale(1.1); } }
+.site-fx.fx-canvas { opacity: .55; }
+.site-fx.fx-dots {
+  background-size: 30px 30px;
+  opacity: .3;
+}
+.site-fx.fx-dots .fx-dots-glow { position: absolute; inset: 0; }
+
+.site-cursor { position: fixed; inset: 0; z-index: 9998; pointer-events: none; }
+.site-cursor i { position: absolute; top: 0; left: 0; border-radius: 50%; translate: -50% -50%; }
+.site-cursor .scd { width: 6px; height: 6px; background: var(--cyan); }
+.site-cursor .scr {
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid color-mix(in srgb, var(--violet) 80%, transparent);
+  transition: width .25s, height .25s, border-color .25s;
+}
+.site-cursor.hot .scr { width: 50px; height: 50px; border-color: var(--pink); }
+.site-trail { position: fixed; inset: 0; z-index: 9998; pointer-events: none; }
+
 /* --- Solo-läge: visar en enda demo (lightboxen på alla.html) --- */
 .solo-mode .site-head,
 .solo-mode .page-intro,

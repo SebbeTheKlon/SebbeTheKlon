@@ -17,7 +17,9 @@
     ]},
     { key: "font", label: "Typsnitt", opts: [["", "Sans"], ["serif", "Serif"], ["mono", "Mono"]] },
     { key: "radius", label: "Hörn", opts: [["skarp", "Skarpa"], ["mjuk", "Mjuka"], ["", "Runda"], ["extra", "Extra runda"]] },
-    { key: "border", label: "Ramar", opts: [["", "Subtila"], ["tydlig", "Tydliga"], ["neon", "Neon"]] }
+    { key: "border", label: "Ramar", opts: [["", "Subtila"], ["tydlig", "Tydliga"], ["neon", "Neon"]] },
+    { key: "bg", label: "Sajtbakgrund ✨", opts: [["", "Ingen"], ["aurora", "Aurora"], ["partiklar", "Partiklar"], ["rutnat", "Rutnät"], ["stjarnor", "Stjärnor"]] },
+    { key: "cursor", label: "Muspekare ✨", opts: [["", "Standard"], ["ring", "Ring"], ["spar", "Partikelspår"]] }
   ];
 
   function apply() {
@@ -26,12 +28,20 @@
       if (v) root.setAttribute("data-" + g.key, v);
       else root.removeAttribute("data-" + g.key);
     });
+    document.dispatchEvent(new CustomEvent("fx-change")); // låt fx.js reagera
   }
   apply(); // körs direkt i <head> så rätt tema finns innan sidan målas
 
   document.addEventListener("DOMContentLoaded", function () {
-    // ingen panel inne i lightbox-iframes (solo-läget)
+    // ingen panel eller sajteffekter inne i lightbox-iframes (solo-läget)
     if (new URLSearchParams(location.search).get("solo")) return;
+
+    // ladda sajteffekt-motorn (fx.js) — injiceras här så att alla sidor
+    // får den utan att behöva ändras
+    var fxScript = document.createElement("script");
+    fxScript.src = "js/fx.js";
+    document.body.appendChild(fxScript);
+
     var fab = document.createElement("button");
     fab.className = "fab";
     fab.textContent = "🎨";
