@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tillstånd &amp; mikrointeraktioner — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
+<style>
+  /* --- 01 Alla knapptillstånd --- */
+  .st-stage { min-height: 260px; gap: 1.2rem; flex-wrap: wrap; }
+  .st-item { display: flex; flex-direction: column; align-items: center; gap: .6rem; }
+  .st-item small { font-family: var(--mono); font-size: .65rem; letter-spacing: .12em; color: var(--muted); }
+  .st-btn {
+    padding: .7rem 1.4rem; border-radius: 10px;
+    border: 1px solid var(--border); background: var(--card);
+    color: var(--text); font-size: .88rem; font-family: var(--font); cursor: pointer;
+    transition: all .2s;
+  }
+  .st-btn.s-hover { background: var(--card-hover); border-color: var(--violet); transform: translateY(-2px); }
+  .st-btn.s-focus { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--cyan) 40%, transparent); border-color: var(--cyan); }
+  .st-btn.s-active { transform: scale(.95); background: color-mix(in srgb, var(--violet) 25%, transparent); }
+  .st-btn.s-disabled { opacity: .4; cursor: not-allowed; filter: grayscale(.6); }
+
+  /* --- 02 Fokusringar --- */
+  .fr-stage { min-height: 260px; flex-direction: column; gap: 1.4rem; }
+  .fr-row { display: flex; gap: 1.2rem; flex-wrap: wrap; justify-content: center; }
+  .fr-hint { color: var(--muted); font-size: .82rem; font-family: var(--mono); }
+  .fr-a:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; border-radius: 10px; }
+  .fr-b:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--violet); }
+  .fr-c:focus-visible { outline: 2px dashed var(--pink); outline-offset: 4px; }
+
+  /* --- 03 Laddningsknapp --- */
+  .lb-stage { min-height: 240px; }
+  .load-btn {
+    position: relative;
+    min-width: 190px;
+    padding: .85rem 1.6rem;
+    border: none; border-radius: 999px;
+    background: var(--grad); color: #fff;
+    font-size: .95rem; font-weight: 600; font-family: var(--font);
+    cursor: pointer;
+    transition: transform .2s, filter .3s;
+  }
+  .load-btn:hover:not(.busy):not(.done) { transform: translateY(-2px); }
+  .load-btn.busy { filter: saturate(.5); pointer-events: none; }
+  .load-btn.done { background: #10b981; pointer-events: none; }
+  .load-btn .spin {
+    display: none;
+    width: 16px; height: 16px;
+    border: 2px solid rgba(255,255,255,.4); border-top-color: #fff;
+    border-radius: 50%;
+    animation: lb-rot .7s linear infinite;
+    vertical-align: -3px; margin-right: .5rem;
+  }
+  .load-btn.busy .spin { display: inline-block; }
+  @keyframes lb-rot { to { transform: rotate(360deg); } }
+
+  /* --- 04 Felskakning --- */
+  .shake-stage { min-height: 260px; flex-direction: column; gap: .9rem; }
+  .shake-row { display: flex; gap: .7rem; flex-wrap: wrap; justify-content: center; }
+  .shake-row input {
+    padding: .75rem 1rem; border-radius: 10px; width: 200px;
+    border: 1.5px solid var(--border); background: var(--card);
+    color: var(--text); font-family: var(--font); outline: none;
+    transition: border-color .25s;
+  }
+  .shake-row input.wrong { border-color: #f87171; animation: shake .45s; }
+  .shake-row input.right { border-color: #34d399; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-8px); }
+    40%, 80% { transform: translateX(8px); }
+  }
+  .shake-msg { font-size: .82rem; color: var(--muted); min-height: 1.3em; }
+
+  /* --- 05 Tryckkänsla --- */
+  .press-stage { min-height: 280px; gap: 1.5rem; flex-wrap: wrap; }
+  .press-card {
+    width: 170px; padding: 1.5rem 1.2rem;
+    border-radius: 14px; border: 1px solid var(--border);
+    background: var(--card); text-align: center; cursor: pointer;
+    box-shadow: 0 10px 26px rgba(0,0,0,.35);
+    transition: transform .15s cubic-bezier(.22,1,.36,1), box-shadow .15s;
+    user-select: none;
+  }
+  .press-card:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(0,0,0,.45); }
+  .press-card:active { transform: translateY(2px) scale(.96); box-shadow: 0 4px 10px rgba(0,0,0,.35); }
+  .press-card .ico { font-size: 1.6rem; }
+  .press-card p { font-size: .82rem; color: var(--muted); margin-top: .4rem; }
+
+  /* --- 06 Disabled-läge som gränssnitt --- */
+  .dis-stage { min-height: 280px; flex-direction: column; gap: 1.4rem; }
+  .dis-toggle { display: flex; align-items: center; gap: .8rem; font-size: .92rem; cursor: pointer; }
+  .dis-toggle input { position: absolute; opacity: 0; }
+  .dis-toggle .tr {
+    width: 48px; height: 27px; border-radius: 999px;
+    background: var(--card-hover); border: 1px solid var(--border);
+    position: relative; transition: background .3s;
+  }
+  .dis-toggle .tr::after {
+    content: ""; position: absolute; top: 3px; left: 3px;
+    width: 19px; height: 19px; border-radius: 50%; background: #fff;
+    transition: transform .3s cubic-bezier(.22,1.4,.36,1);
+  }
+  .dis-toggle input:checked + .tr { background: var(--violet); }
+  .dis-toggle input:checked + .tr::after { transform: translateX(21px); }
+  .dis-panel {
+    display: flex; gap: .8rem; flex-wrap: wrap; justify-content: center;
+    padding: 1.4rem; border: 1px solid var(--border); border-radius: 14px;
+    transition: opacity .4s, filter .4s;
+  }
+  .dis-panel.off { opacity: .35; filter: grayscale(.8); pointer-events: none; }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="typografi.html">Typografi</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="media.html">Media</a>
+    <a href="ui.html">UI</a>
+    <a href="formular.html">Formulär</a>
+    <a href="navigation.html">Navigation</a>
+    <a href="feedback.html">Feedback</a>
+    <a href="listor.html">Listor</a>
+    <a href="tillstand.html">Tillstånd</a>
+    <a href="css.html">Modern CSS</a>
+    <a href="labb.html">Labbet</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 16</div>
+    <h1>Tillstånd &amp; mikrointeraktioner</h1>
+    <p>Hover, fokus, aktiv, inaktiverad, laddar, lyckades, misslyckades — varje tillstånd är en chans att kommunicera. Det är här gränssnitt får personlighet.</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>Alla knapptillstånd</h2>
+      <p>Samma knapp i fem lägen, sida vid sida. En komplett komponent designar alla fem — inte bara "normal".</p>
+    </div>
+    <div class="demo-stage st-stage">
+      <div class="st-item"><button class="st-btn">Knapp</button><small>NORMAL</small></div>
+      <div class="st-item"><button class="st-btn s-hover">Knapp</button><small>HOVER</small></div>
+      <div class="st-item"><button class="st-btn s-focus">Knapp</button><small>FOKUS</small></div>
+      <div class="st-item"><button class="st-btn s-active">Knapp</button><small>AKTIV</small></div>
+      <div class="st-item"><button class="st-btn s-disabled">Knapp</button><small>INAKTIV</small></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Fokusringar med stil</h2>
+      <p><code>:focus-visible</code> visar ringen bara vid tangentbordsnavigering — snygg för alla, oumbärlig för många.</p>
+    </div>
+    <div class="demo-stage fr-stage">
+      <div class="fr-hint">Tryck Tab ↹ för att flytta fokus</div>
+      <div class="fr-row">
+        <button class="btn fr-a">Solid ring</button>
+        <button class="btn fr-b">Dubbel ring</button>
+        <button class="btn fr-c">Streckad</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>Laddningsknapp</h2>
+      <p>Klick → spinner → grön bekräftelse → tillbaka. Knappen berättar hela historien själv.</p>
+    </div>
+    <div class="demo-stage lb-stage">
+      <button class="load-btn" id="load-btn"><span class="spin"></span><span class="txt">Spara ändringar</span></button>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>Felskakning</h2>
+      <p>Fel lösenord? Fältet skakar på huvudet. Rätt svar är <code>hemligt</code> — prova båda.</p>
+    </div>
+    <div class="demo-stage shake-stage">
+      <div class="shake-row">
+        <input type="password" id="shake-input" placeholder="Lösenord…">
+        <button class="btn" id="shake-btn">Logga in</button>
+      </div>
+      <div class="shake-msg" id="shake-msg">Psst — lösenordet är "hemligt"</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>Tryckkänsla</h2>
+      <p>Hover lyfter kortet, klick trycker ner det — skuggan följer med och skapar fysisk närvaro. Klicka och håll!</p>
+    </div>
+    <div class="demo-stage press-stage">
+      <div class="press-card"><div class="ico">🎯</div><strong>Tryck här</strong><p>Känn studsen</p></div>
+      <div class="press-card"><div class="ico">🪀</div><strong>Och här</strong><p>Skuggan krymper</p></div>
+      <div class="press-card"><div class="ico">🎪</div><strong>Även här</strong><p>Släpp så lyfter jag</p></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">06</span>Inaktiverat läge</h2>
+      <p>Hela sektioner kan slås av — gråskala, sänkt opacitet och blockerade klick gör läget omöjligt att missförstå.</p>
+    </div>
+    <div class="demo-stage dis-stage">
+      <label class="dis-toggle"><input type="checkbox" id="dis-switch" checked><span class="tr"></span>Avancerade funktioner</label>
+      <div class="dis-panel" id="dis-panel">
+        <button class="btn">⚙️ Konfigurera</button>
+        <button class="btn">📊 Exportera</button>
+        <button class="btn">🔬 Analysera</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>Nästa kategori: <a href="labb.html">Labbet →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- 03 Laddningsknapp --- */
+(function () {
+  var btn = document.getElementById("load-btn");
+  var txt = btn.querySelector(".txt");
+  btn.addEventListener("click", function () {
+    btn.classList.add("busy");
+    txt.textContent = "Sparar…";
+    setTimeout(function () {
+      btn.classList.remove("busy");
+      btn.classList.add("done");
+      txt.textContent = "✓ Sparat!";
+      setTimeout(function () {
+        btn.classList.remove("done");
+        txt.textContent = "Spara ändringar";
+      }, 1600);
+    }, 1500);
+  });
+})();
+
+/* --- 04 Felskakning --- */
+(function () {
+  var input = document.getElementById("shake-input");
+  var msg = document.getElementById("shake-msg");
+  function check() {
+    input.classList.remove("wrong", "right");
+    if (input.value === "hemligt") {
+      input.classList.add("right");
+      msg.textContent = "✓ Välkommen in!";
+      msg.style.color = "#34d399";
+    } else {
+      void input.offsetWidth; // starta om skak-animationen
+      input.classList.add("wrong");
+      msg.textContent = "✕ Fel lösenord — försök igen";
+      msg.style.color = "#f87171";
+    }
+  }
+  document.getElementById("shake-btn").addEventListener("click", check);
+  input.addEventListener("keydown", function (e) { if (e.key === "Enter") check(); });
+})();
+
+/* --- 06 Inaktiverat läge --- */
+(function () {
+  var sw = document.getElementById("dis-switch");
+  var panel = document.getElementById("dis-panel");
+  function update() { panel.classList.toggle("off", !sw.checked); }
+  sw.addEventListener("change", update);
+  update();
+})();
+</script>
+<script src="js/code-view.js"></script>
+</body>
+</html>

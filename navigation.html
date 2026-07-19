@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Navigation — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
+<style>
+  /* --- 01 Smart sticky header --- */
+  .sh-stage { min-height: auto; padding: 0; align-items: stretch; }
+  .sh-box { height: 280px; overflow-y: auto; width: 100%; position: relative; }
+  .sh-head {
+    position: sticky; top: 0; z-index: 5;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: .8rem 1.2rem;
+    background: color-mix(in srgb, var(--bg2) 80%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    transition: transform .35s cubic-bezier(.22,1,.36,1);
+    font-weight: 700; font-size: .9rem;
+  }
+  .sh-head.hidden { transform: translateY(-100%); }
+  .sh-head span { color: var(--muted); font-weight: 400; font-size: .78rem; }
+  .sh-content { padding: 1.2rem; color: var(--muted); font-size: .88rem; display: grid; gap: .9rem; }
+  .sh-content div { padding: 1rem; border: 1px solid var(--border); border-radius: 10px; }
+
+  /* --- 02 Hamburgare till kryss --- */
+  .hb-stage { min-height: 300px; padding: 0; overflow: hidden; }
+  .hb-btn {
+    position: absolute; top: 1.2rem; left: 1.2rem; z-index: 6;
+    width: 46px; height: 46px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--card);
+    cursor: pointer; display: grid; place-items: center; gap: 0;
+  }
+  .hb-btn span {
+    display: block; width: 20px; height: 2px; margin: 2.5px 0;
+    background: var(--text); border-radius: 2px;
+    transition: transform .35s cubic-bezier(.22,1,.36,1), opacity .25s;
+  }
+  .hb-btn.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hb-btn.open span:nth-child(2) { opacity: 0; }
+  .hb-btn.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .hb-menu {
+    position: absolute; inset: 0 40% 0 0;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 5.5rem 1.5rem 1.5rem;
+    transform: translateX(-100%);
+    transition: transform .4s cubic-bezier(.22,1,.36,1);
+    display: flex; flex-direction: column; gap: .3rem;
+  }
+  .hb-menu.open { transform: none; }
+  .hb-menu a {
+    color: var(--text); text-decoration: none; padding: .55rem .8rem;
+    border-radius: 8px; font-size: .92rem;
+    opacity: 0; transform: translateX(-14px);
+    transition: opacity .3s, transform .3s, background .2s;
+  }
+  .hb-menu.open a { opacity: 1; transform: none; }
+  .hb-menu a:hover { background: var(--card-hover); }
+  .hb-hint { color: var(--muted); font-size: .85rem; }
+
+  /* --- 03 Flikar med glidande indikator --- */
+  .tabs-stage { min-height: 280px; flex-direction: column; gap: 1.4rem; }
+  .tabs { position: relative; display: flex; gap: .2rem; border-bottom: 1px solid var(--border); }
+  .tabs button {
+    padding: .7rem 1.2rem; border: none; background: none;
+    color: var(--muted); font-size: .92rem; font-family: var(--font); cursor: pointer;
+    transition: color .25s;
+  }
+  .tabs button.active { color: var(--text); }
+  .tab-ind {
+    position: absolute; bottom: -1px; height: 2px;
+    background: var(--grad); border-radius: 2px;
+    transition: left .35s cubic-bezier(.22,1,.36,1), width .35s cubic-bezier(.22,1,.36,1);
+  }
+  .tab-panel { max-width: 420px; text-align: center; color: var(--muted); font-size: .9rem; animation: tab-in .35s; }
+  @keyframes tab-in { from { opacity: 0; transform: translateY(8px); } }
+
+  /* --- 04 Scrollspy --- */
+  .spy-stage { min-height: auto; padding: 0; align-items: stretch; }
+  .spy-wrap { display: flex; width: 100%; height: 300px; }
+  .spy-nav { flex: 0 0 150px; padding: 1.2rem .8rem; border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: .3rem; }
+  .spy-nav a {
+    color: var(--muted); text-decoration: none; font-size: .85rem;
+    padding: .45rem .7rem; border-left: 2px solid transparent;
+    transition: color .25s, border-color .25s, background .25s;
+  }
+  .spy-nav a.active { color: var(--cyan); border-left-color: var(--cyan); background: var(--card); }
+  .spy-body { flex: 1; overflow-y: auto; padding: 1.2rem; }
+  .spy-body section { min-height: 170px; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 10px; }
+  .spy-body h3 { font-size: .95rem; margin-bottom: .3rem; }
+  .spy-body p { color: var(--muted); font-size: .85rem; }
+
+  /* --- 05 Dropdown --- */
+  .dd-stage { min-height: 300px; align-items: flex-start; justify-content: center; padding-top: 2.5rem; }
+  .dd { position: relative; }
+  .dd-menu {
+    position: absolute; top: calc(100% + 8px); left: 0; min-width: 210px;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+    padding: .4rem; z-index: 5;
+    box-shadow: 0 16px 50px rgba(0,0,0,.45);
+    opacity: 0; transform: translateY(-8px) scale(.97);
+    pointer-events: none;
+    transition: opacity .22s, transform .22s;
+  }
+  .dd.open .dd-menu { opacity: 1; transform: none; pointer-events: auto; }
+  .dd-menu a {
+    display: flex; gap: .6rem; align-items: center;
+    padding: .55rem .8rem; border-radius: 8px;
+    color: var(--text); text-decoration: none; font-size: .88rem;
+    transition: background .15s;
+  }
+  .dd-menu a:hover { background: var(--card-hover); }
+  .dd-menu hr { border: none; border-top: 1px solid var(--border); margin: .3rem .5rem; }
+
+  /* --- 06 Mobil bottennav --- */
+  .bn-stage { min-height: 260px; }
+  .bottom-nav {
+    position: relative;
+    display: flex;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: .4rem;
+  }
+  .bn-pill {
+    position: absolute; top: .4rem; bottom: .4rem;
+    width: 74px; border-radius: 999px;
+    background: var(--grad);
+    transition: transform .35s cubic-bezier(.22,1.3,.36,1);
+    z-index: 0;
+  }
+  .bottom-nav button {
+    position: relative; z-index: 1;
+    width: 74px; padding: .55rem 0;
+    border: none; background: none; cursor: pointer;
+    color: var(--muted); font-size: 1.1rem;
+    transition: color .3s;
+    display: flex; flex-direction: column; align-items: center; gap: .1rem;
+  }
+  .bottom-nav button small { font-size: .6rem; font-family: var(--font); }
+  .bottom-nav button.active { color: #fff; }
+
+  /* --- 07 Brödsmulor --- */
+  .bc-stage { min-height: 180px; }
+  .crumbs { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; font-size: .9rem; }
+  .crumbs a { color: var(--muted); text-decoration: none; padding: .3rem .6rem; border-radius: 7px; transition: color .2s, background .2s; }
+  .crumbs a:hover { color: var(--cyan); background: var(--card-hover); }
+  .crumbs .sep { color: var(--border); }
+  .crumbs .here { color: var(--text); font-weight: 600; padding: .3rem .6rem; background: var(--card); border-radius: 7px; }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="typografi.html">Typografi</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="media.html">Media</a>
+    <a href="ui.html">UI</a>
+    <a href="formular.html">Formulär</a>
+    <a href="navigation.html">Navigation</a>
+    <a href="feedback.html">Feedback</a>
+    <a href="listor.html">Listor</a>
+    <a href="tillstand.html">Tillstånd</a>
+    <a href="css.html">Modern CSS</a>
+    <a href="labb.html">Labbet</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 10</div>
+    <h1>Navigation</h1>
+    <p>Navigationen är sajtens ryggrad. Här är mönstren som gör att besökaren alltid vet var den är — och hur den tar sig vidare.</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>Smart sticky header</h2>
+      <p>Headern gömmer sig när du scrollar ner (mer plats åt innehållet) och dyker upp direkt när du scrollar upp. Scrolla i rutan.</p>
+    </div>
+    <div class="demo-stage sh-stage">
+      <div class="sh-box" id="sh-box">
+        <div class="sh-head" id="sh-head">⚡ Minisajt <span>scrolla ner/upp</span></div>
+        <div class="sh-content">
+          <div>Sektion 1 — scrolla nedåt så försvinner headern.</div>
+          <div>Sektion 2 — den tar ingen plats när du läser.</div>
+          <div>Sektion 3 — scrolla upp lite…</div>
+          <div>Sektion 4 — …och headern glider tillbaka direkt.</div>
+          <div>Sektion 5 — mönstret används av Stripe, Medium m.fl.</div>
+          <div>Sektion 6 — slutet.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Hamburgare → kryss</h2>
+      <p>Tre streck som viks till ett kryss, och en meny som glider in med staggade länkar.</p>
+    </div>
+    <div class="demo-stage hb-stage">
+      <button class="hb-btn" id="hb-btn" aria-label="Meny"><span></span><span></span><span></span></button>
+      <nav class="hb-menu" id="hb-menu">
+        <a href="#" onclick="return false">Hem</a>
+        <a href="#" onclick="return false" style="transition-delay:.05s">Projekt</a>
+        <a href="#" onclick="return false" style="transition-delay:.1s">Om oss</a>
+        <a href="#" onclick="return false" style="transition-delay:.15s">Kontakt</a>
+      </nav>
+      <span class="hb-hint">← Klicka på knappen</span>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>Flikar med glidande indikator</h2>
+      <p>Understrykningen glider mellan flikarna i stället för att hoppa — liten detalj, stor skillnad i känsla.</p>
+    </div>
+    <div class="demo-stage tabs-stage">
+      <div class="tabs" id="tabs">
+        <button class="active">Översikt</button>
+        <button>Statistik</button>
+        <button>Inställningar</button>
+        <div class="tab-ind" id="tab-ind"></div>
+      </div>
+      <div class="tab-panel" id="tab-panel">Översikten samlar det viktigaste på ett ställe.</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>Scrollspy</h2>
+      <p>Sidomenyn markerar automatiskt den sektion du läser — IntersectionObserver med rutan som root.</p>
+    </div>
+    <div class="demo-stage spy-stage">
+      <div class="spy-wrap">
+        <div class="spy-nav" id="spy-nav">
+          <a href="#" data-t="s1" class="active">Intro</a>
+          <a href="#" data-t="s2">Funktioner</a>
+          <a href="#" data-t="s3">Priser</a>
+          <a href="#" data-t="s4">Kontakt</a>
+        </div>
+        <div class="spy-body" id="spy-body">
+          <section id="s1"><h3>Intro</h3><p>Scrolla i den här ytan och titta på menyn till vänster.</p></section>
+          <section id="s2"><h3>Funktioner</h3><p>Menyn följer med — utan ett enda scroll-event.</p></section>
+          <section id="s3"><h3>Priser</h3><p>IntersectionObserver rapporterar vilken sektion som syns.</p></section>
+          <section id="s4"><h3>Kontakt</h3><p>Sista sektionen. Klicka i menyn för att hoppa hit direkt.</p></section>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>Dropdown-meny</h2>
+      <p>Klick öppnar menyn med en mjuk skala/fade, klick utanför stänger den.</p>
+    </div>
+    <div class="demo-stage dd-stage">
+      <div class="dd" id="dd">
+        <button class="btn" id="dd-btn">Konto ▾</button>
+        <div class="dd-menu">
+          <a href="#" onclick="return false">👤 Profil</a>
+          <a href="#" onclick="return false">⚙️ Inställningar</a>
+          <a href="#" onclick="return false">💳 Fakturering</a>
+          <hr>
+          <a href="#" onclick="return false">🚪 Logga ut</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">06</span>Mobil bottennav</h2>
+      <p>Tabbar med en pill som glider till den aktiva fliken — standardmönstret i mobilappar.</p>
+    </div>
+    <div class="demo-stage bn-stage">
+      <div class="bottom-nav" id="bn">
+        <div class="bn-pill" id="bn-pill"></div>
+        <button class="active">🏠<small>Hem</small></button>
+        <button>🔍<small>Sök</small></button>
+        <button>❤️<small>Sparat</small></button>
+        <button>👤<small>Profil</small></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">07</span>Brödsmulor</h2>
+      <p>Visar var i hierarkin besökaren är, med tydlig markering av nuvarande sida.</p>
+    </div>
+    <div class="demo-stage bc-stage">
+      <nav class="crumbs">
+        <a href="#" onclick="return false">Hem</a><span class="sep">/</span>
+        <a href="#" onclick="return false">Butik</a><span class="sep">/</span>
+        <a href="#" onclick="return false">Möbler</a><span class="sep">/</span>
+        <span class="here">Fåtöljer</span>
+      </nav>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>Nästa kategori: <a href="feedback.html">Feedback →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- 01 Smart sticky header --- */
+(function () {
+  var box = document.getElementById("sh-box");
+  var head = document.getElementById("sh-head");
+  var last = 0;
+  box.addEventListener("scroll", function () {
+    var y = box.scrollTop;
+    head.classList.toggle("hidden", y > last && y > 40);
+    last = y;
+  }, { passive: true });
+})();
+
+/* --- 02 Hamburgare --- */
+(function () {
+  var btn = document.getElementById("hb-btn");
+  var menu = document.getElementById("hb-menu");
+  btn.addEventListener("click", function () {
+    btn.classList.toggle("open");
+    menu.classList.toggle("open");
+  });
+})();
+
+/* --- 03 Flikar --- */
+(function () {
+  var tabs = document.getElementById("tabs");
+  var ind = document.getElementById("tab-ind");
+  var panel = document.getElementById("tab-panel");
+  var texts = [
+    "Översikten samlar det viktigaste på ett ställe.",
+    "Grafer och siffror — indikatorn gled hit mjukt.",
+    "Inställningar för konto, tema och notiser."
+  ];
+  var btns = tabs.querySelectorAll("button");
+  function move(btn) {
+    ind.style.left = btn.offsetLeft + "px";
+    ind.style.width = btn.offsetWidth + "px";
+  }
+  btns.forEach(function (b, i) {
+    b.addEventListener("click", function () {
+      tabs.querySelector(".active").classList.remove("active");
+      b.classList.add("active");
+      move(b);
+      panel.style.animation = "none";
+      void panel.offsetWidth; // starta om animationen
+      panel.style.animation = "";
+      panel.textContent = texts[i];
+    });
+  });
+  move(btns[0]);
+})();
+
+/* --- 04 Scrollspy --- */
+(function () {
+  var body = document.getElementById("spy-body");
+  var links = document.querySelectorAll("#spy-nav a");
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (l) { l.classList.toggle("active", l.dataset.t === e.target.id); });
+      }
+    });
+  }, { root: body, threshold: .55 });
+  body.querySelectorAll("section").forEach(function (s) { io.observe(s); });
+  links.forEach(function (l) {
+    l.addEventListener("click", function (e) {
+      e.preventDefault();
+      document.getElementById(l.dataset.t).scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+})();
+
+/* --- 05 Dropdown --- */
+(function () {
+  var dd = document.getElementById("dd");
+  document.getElementById("dd-btn").addEventListener("click", function (e) {
+    e.stopPropagation();
+    dd.classList.toggle("open");
+  });
+  document.addEventListener("click", function () { dd.classList.remove("open"); });
+})();
+
+/* --- 06 Bottennav --- */
+(function () {
+  var bn = document.getElementById("bn");
+  var pill = document.getElementById("bn-pill");
+  var btns = bn.querySelectorAll("button");
+  function move(b) { pill.style.transform = "translateX(" + (b.offsetLeft - btns[0].offsetLeft) + "px)"; pill.style.left = btns[0].offsetLeft + "px"; }
+  btns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      bn.querySelector("button.active").classList.remove("active");
+      b.classList.add("active");
+      move(b);
+    });
+  });
+  move(btns[0]);
+})();
+</script>
+<script src="js/code-view.js"></script>
+</body>
+</html>

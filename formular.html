@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formulär &amp; inmatning — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
+<style>
+  /* --- 01 Flytande etiketter --- */
+  .fl-stage { min-height: 260px; gap: 2rem; flex-wrap: wrap; }
+  .fl-field { position: relative; width: 240px; }
+  .fl-field input {
+    width: 100%;
+    padding: 1.1rem 1rem .6rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: .95rem;
+    font-family: var(--font);
+    outline: none;
+    transition: border-color .25s, box-shadow .25s;
+  }
+  .fl-field input:focus { border-color: var(--violet); box-shadow: 0 0 0 3px color-mix(in srgb, var(--violet) 25%, transparent); }
+  .fl-field label {
+    position: absolute;
+    left: 1rem;
+    top: .95rem;
+    color: var(--muted);
+    font-size: .95rem;
+    pointer-events: none;
+    transition: top .2s, font-size .2s, color .2s;
+  }
+  .fl-field input:focus + label,
+  .fl-field input:not(:placeholder-shown) + label {
+    top: .3rem;
+    font-size: .68rem;
+    color: var(--violet);
+  }
+
+  /* --- 02 Live-validering --- */
+  .val-stage { min-height: 240px; flex-direction: column; gap: .6rem; }
+  .val-wrap { position: relative; width: min(300px, 100%); }
+  .val-wrap input {
+    width: 100%;
+    padding: .8rem 2.6rem .8rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-family: var(--font);
+    outline: none;
+    transition: border-color .25s;
+  }
+  .val-wrap .mark { position: absolute; right: .9rem; top: 50%; transform: translateY(-50%); font-weight: 700; opacity: 0; transition: opacity .2s; }
+  .val-wrap.ok input { border-color: #34d399; }
+  .val-wrap.err input { border-color: #f87171; }
+  .val-wrap.ok .mark.ok, .val-wrap.err .mark.err { opacity: 1; }
+  .mark.ok { color: #34d399; } .mark.err { color: #f87171; }
+  .val-msg { font-size: .8rem; min-height: 1.2em; color: var(--muted); }
+
+  /* --- 03 Egna kryssrutor & radioknappar --- */
+  .chk-stage { min-height: 260px; gap: 3rem; flex-wrap: wrap; }
+  .chk-group { display: flex; flex-direction: column; gap: .8rem; }
+  .chk { display: flex; align-items: center; gap: .7rem; cursor: pointer; font-size: .92rem; }
+  .chk input { position: absolute; opacity: 0; }
+  .chk .box {
+    width: 22px; height: 22px;
+    border-radius: 7px;
+    border: 1.5px solid var(--border);
+    display: grid; place-items: center;
+    transition: background .2s, border-color .2s, transform .15s;
+  }
+  .chk .box::after { content: "✓"; color: #fff; font-size: .8rem; transform: scale(0); transition: transform .25s cubic-bezier(.22,1.6,.36,1); }
+  .chk input:checked + .box { background: var(--violet); border-color: var(--violet); }
+  .chk input:checked + .box::after { transform: scale(1); }
+  .chk:active .box { transform: scale(.85); }
+  .chk .box.round { border-radius: 50%; }
+  .chk .box.round::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: #fff; }
+
+  /* --- 04 Dubbelreglage --- */
+  .r2-stage { min-height: 220px; flex-direction: column; gap: 1.2rem; }
+  .range2 { position: relative; width: min(320px, 90%); height: 40px; }
+  .r2-track { position: absolute; top: 18px; width: 100%; height: 5px; border-radius: 999px; background: var(--card-hover); }
+  .r2-fill { position: absolute; height: 100%; border-radius: 999px; background: var(--grad); }
+  .range2 input {
+    position: absolute; top: 8px; width: 100%;
+    appearance: none; -webkit-appearance: none;
+    background: none; pointer-events: none; margin: 0;
+  }
+  .range2 input::-webkit-slider-thumb {
+    appearance: none; -webkit-appearance: none;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #fff; border: 3px solid var(--violet);
+    cursor: grab; pointer-events: auto;
+  }
+  .range2 input::-moz-range-thumb {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; border: 3px solid var(--violet);
+    cursor: grab; pointer-events: auto;
+  }
+  .r2-vals { font-family: var(--mono); font-size: .9rem; color: var(--cyan); }
+
+  /* --- 05 Autocomplete --- */
+  .ac-stage { min-height: 300px; align-items: flex-start; justify-content: center; padding-top: 2.5rem; }
+  .ac-wrap { position: relative; width: min(300px, 100%); }
+  .ac-wrap input {
+    width: 100%; padding: .8rem 1rem;
+    border-radius: 10px; border: 1px solid var(--border);
+    background: var(--card); color: var(--text);
+    font-family: var(--font); outline: none;
+  }
+  .ac-wrap input:focus { border-color: var(--violet); }
+  .ac-list {
+    position: absolute; top: calc(100% + 6px); left: 0; right: 0;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden; z-index: 5;
+    box-shadow: 0 12px 40px rgba(0,0,0,.4);
+    display: none;
+  }
+  .ac-list.open { display: block; }
+  .ac-list button {
+    display: block; width: 100%; text-align: left;
+    padding: .6rem 1rem; border: none; background: none;
+    color: var(--text); font-size: .9rem; font-family: var(--font); cursor: pointer;
+  }
+  .ac-list button:hover { background: var(--card-hover); }
+  .ac-list b { color: var(--cyan); }
+
+  /* --- 06 Stegformulär --- */
+  .fs-stage { min-height: 320px; flex-direction: column; gap: 1.4rem; }
+  .fs-progress { width: min(320px, 90%); height: 5px; border-radius: 999px; background: var(--card-hover); overflow: hidden; }
+  .fs-progress div { height: 100%; width: 33%; background: var(--grad); transition: width .4s cubic-bezier(.22,1,.36,1); }
+  .fs-window { width: min(320px, 90%); overflow: hidden; }
+  .fs-steps { display: flex; transition: transform .45s cubic-bezier(.22,1,.36,1); }
+  .fs-step { flex: 0 0 100%; text-align: center; padding: .5rem; }
+  .fs-step h3 { margin-bottom: .4rem; }
+  .fs-step p { color: var(--muted); font-size: .85rem; }
+  .fs-nav { display: flex; gap: 1rem; }
+
+  /* --- 07 Dra-och-släpp-filer --- */
+  .dz-stage { min-height: 280px; flex-direction: column; gap: 1rem; }
+  .dz {
+    width: min(380px, 90%);
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 2.2rem 1.5rem;
+    text-align: center;
+    color: var(--muted);
+    cursor: pointer;
+    transition: border-color .25s, background .25s, transform .25s;
+  }
+  .dz.over { border-color: var(--cyan); background: color-mix(in srgb, var(--cyan) 8%, transparent); transform: scale(1.02); }
+  .dz-files { font-family: var(--mono); font-size: .8rem; color: var(--cyan); display: flex; flex-direction: column; gap: .3rem; }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="typografi.html">Typografi</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="media.html">Media</a>
+    <a href="ui.html">UI</a>
+    <a href="formular.html">Formulär</a>
+    <a href="navigation.html">Navigation</a>
+    <a href="feedback.html">Feedback</a>
+    <a href="listor.html">Listor</a>
+    <a href="tillstand.html">Tillstånd</a>
+    <a href="css.html">Modern CSS</a>
+    <a href="labb.html">Labbet</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro reveal">
+    <div class="kicker">Kategori 09</div>
+    <h1>Formulär &amp; inmatning</h1>
+    <p>Formulär är webbens mest använda gränssnitt — och oftast det tråkigaste. Så här gör du dem levande, tydliga och trevliga att fylla i.</p>
+  </div>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">01</span>Flytande etiketter</h2>
+      <p>Etiketten ligger i fältet och glider upp när du börjar skriva — ren CSS med <code>:placeholder-shown</code>.</p>
+    </div>
+    <div class="demo-stage fl-stage">
+      <div class="fl-field"><input type="text" id="fl1" placeholder=" "><label for="fl1">Ditt namn</label></div>
+      <div class="fl-field"><input type="email" id="fl2" placeholder=" "><label for="fl2">E-postadress</label></div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">02</span>Live-validering</h2>
+      <p>Fältet svarar medan du skriver: grön bock när adressen är giltig, rött kryss och hjälptext när något saknas.</p>
+    </div>
+    <div class="demo-stage val-stage">
+      <div class="val-wrap" id="val-wrap">
+        <input type="email" id="val-input" placeholder="namn@exempel.se" autocomplete="off">
+        <span class="mark ok">✓</span><span class="mark err">✕</span>
+      </div>
+      <div class="val-msg" id="val-msg">Skriv en e-postadress</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">03</span>Egna kryssrutor &amp; radioknappar</h2>
+      <p>Originalen göms och ersätts med egna rutor — bocken studsar in med en överskjutande easing.</p>
+    </div>
+    <div class="demo-stage chk-stage">
+      <div class="chk-group">
+        <label class="chk"><input type="checkbox" checked><span class="box"></span>Nyhetsbrev</label>
+        <label class="chk"><input type="checkbox"><span class="box"></span>Notiser</label>
+        <label class="chk"><input type="checkbox" checked><span class="box"></span>Mörkt läge</label>
+      </div>
+      <div class="chk-group">
+        <label class="chk"><input type="radio" name="plan" checked><span class="box round"></span>Gratis</label>
+        <label class="chk"><input type="radio" name="plan"><span class="box round"></span>Pro</label>
+        <label class="chk"><input type="radio" name="plan"><span class="box round"></span>Team</label>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">04</span>Dubbelreglage (från–till)</h2>
+      <p>Två överlappande range-reglage bildar ett prisfilter. Tricket är <code>pointer-events</code> bara på tummarna.</p>
+    </div>
+    <div class="demo-stage r2-stage">
+      <div class="range2">
+        <div class="r2-track"><div class="r2-fill" id="r2-fill"></div></div>
+        <input type="range" min="0" max="100" value="20" id="r2a">
+        <input type="range" min="0" max="100" value="80" id="r2b">
+      </div>
+      <div class="r2-vals"><span id="r2-lo">200</span> kr – <span id="r2-hi">800</span> kr</div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">05</span>Autocomplete-sök</h2>
+      <p>Förslagen filtreras medan du skriver och matchningen markeras. Prova att skriva en svensk stad.</p>
+    </div>
+    <div class="demo-stage ac-stage">
+      <div class="ac-wrap">
+        <input type="text" id="ac-input" placeholder="Sök stad… (t.ex. Sto)" autocomplete="off">
+        <div class="ac-list" id="ac-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">06</span>Stegformulär med progress</h2>
+      <p>Långa formulär blir lättare i steg. Panelerna glider i sidled och mätaren visar hur långt du kommit.</p>
+    </div>
+    <div class="demo-stage fs-stage">
+      <div class="fs-progress"><div id="fs-bar"></div></div>
+      <div class="fs-window">
+        <div class="fs-steps" id="fs-steps">
+          <div class="fs-step"><h3>1. Konto</h3><p>Namn och e-post — det viktigaste först.</p></div>
+          <div class="fs-step"><h3>2. Profil</h3><p>Bild, bio och inställningar.</p></div>
+          <div class="fs-step"><h3>3. Klart! 🎉</h3><p>Granska och bekräfta.</p></div>
+        </div>
+      </div>
+      <div class="fs-nav">
+        <button class="btn" id="fs-back">← Tillbaka</button>
+        <button class="btn" id="fs-next">Nästa →</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo reveal">
+    <div class="demo-head">
+      <h2><span class="nr">07</span>Dra-och-släpp-uppladdning</h2>
+      <p>Släpp filer på ytan (eller klicka) — zonen tänds när något dras över den. Inget laddas upp, bara filnamnen listas.</p>
+    </div>
+    <div class="demo-stage dz-stage">
+      <div class="dz" id="dz">📁 Släpp filer här<br><small>eller klicka för att välja</small></div>
+      <input type="file" id="dz-input" multiple hidden>
+      <div class="dz-files" id="dz-files"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>Nästa kategori: <a href="navigation.html">Navigation →</a></span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+/* --- 02 Live-validering --- */
+(function () {
+  var wrap = document.getElementById("val-wrap");
+  var input = document.getElementById("val-input");
+  var msg = document.getElementById("val-msg");
+  input.addEventListener("input", function () {
+    var v = input.value;
+    if (!v) { wrap.className = "val-wrap"; msg.textContent = "Skriv en e-postadress"; return; }
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)) {
+      wrap.className = "val-wrap ok"; msg.textContent = "Ser bra ut! ✨";
+    } else {
+      wrap.className = "val-wrap err";
+      msg.textContent = v.indexOf("@") < 0 ? "Saknar @-tecken" : "Ofullständig adress";
+    }
+  });
+})();
+
+/* --- 04 Dubbelreglage --- */
+(function () {
+  var a = document.getElementById("r2a"), b = document.getElementById("r2b");
+  var fill = document.getElementById("r2-fill");
+  var lo = document.getElementById("r2-lo"), hi = document.getElementById("r2-hi");
+  function update() {
+    var v1 = Math.min(+a.value, +b.value), v2 = Math.max(+a.value, +b.value);
+    fill.style.left = v1 + "%";
+    fill.style.width = (v2 - v1) + "%";
+    lo.textContent = v1 * 10; hi.textContent = v2 * 10;
+  }
+  a.addEventListener("input", update);
+  b.addEventListener("input", update);
+  update();
+})();
+
+/* --- 05 Autocomplete --- */
+(function () {
+  var cities = ["Stockholm","Göteborg","Malmö","Uppsala","Västerås","Örebro","Linköping","Helsingborg","Jönköping","Norrköping","Lund","Umeå","Gävle","Borås","Södertälje","Eskilstuna","Halmstad","Växjö","Karlstad","Sundsvall"];
+  var input = document.getElementById("ac-input");
+  var list = document.getElementById("ac-list");
+  input.addEventListener("input", function () {
+    var q = input.value.trim().toLowerCase();
+    list.innerHTML = "";
+    if (!q) { list.classList.remove("open"); return; }
+    var hits = cities.filter(function (c) { return c.toLowerCase().indexOf(q) === 0; }).slice(0, 6);
+    if (!hits.length) { list.classList.remove("open"); return; }
+    hits.forEach(function (c) {
+      var b = document.createElement("button");
+      b.innerHTML = "<b>" + c.slice(0, q.length) + "</b>" + c.slice(q.length);
+      b.addEventListener("click", function () { input.value = c; list.classList.remove("open"); });
+      list.appendChild(b);
+    });
+    list.classList.add("open");
+  });
+  document.addEventListener("click", function (e) {
+    if (e.target !== input) list.classList.remove("open");
+  });
+})();
+
+/* --- 06 Stegformulär --- */
+(function () {
+  var steps = document.getElementById("fs-steps");
+  var bar = document.getElementById("fs-bar");
+  var i = 0, max = 2;
+  function update() {
+    steps.style.transform = "translateX(-" + i * 100 + "%)";
+    bar.style.width = ((i + 1) / 3 * 100) + "%";
+  }
+  document.getElementById("fs-next").addEventListener("click", function () { if (i < max) { i++; update(); } });
+  document.getElementById("fs-back").addEventListener("click", function () { if (i > 0) { i--; update(); } });
+  update();
+})();
+
+/* --- 07 Dra-och-släpp-filer --- */
+(function () {
+  var dz = document.getElementById("dz");
+  var input = document.getElementById("dz-input");
+  var out = document.getElementById("dz-files");
+  function show(files) {
+    out.innerHTML = "";
+    Array.prototype.forEach.call(files, function (f) {
+      var d = document.createElement("div");
+      d.textContent = "📄 " + f.name + " (" + Math.round(f.size / 1024) + " kB)";
+      out.appendChild(d);
+    });
+  }
+  dz.addEventListener("click", function () { input.click(); });
+  input.addEventListener("change", function () { show(input.files); });
+  ["dragenter", "dragover"].forEach(function (ev) {
+    dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add("over"); });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove("over"); });
+  });
+  dz.addEventListener("drop", function (e) { show(e.dataTransfer.files); });
+})();
+</script>
+<script src="js/code-view.js"></script>
+</body>
+</html>
