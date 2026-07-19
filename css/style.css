@@ -335,6 +335,62 @@ body::after {
   white-space: pre;
 }
 
+/* --- Solo-läge: visar en enda demo (lightboxen på alla.html) --- */
+.solo-mode .site-head,
+.solo-mode .page-intro,
+.solo-mode .site-foot,
+.solo-mode .fab,
+.solo-mode .fab-stack,
+.solo-mode .theme-panel,
+.solo-mode .code-btn,
+.solo-mode .fav-btn { display: none !important; }
+.solo-mode .demo { display: none; }
+.solo-mode .demo.solo { display: block; margin: 0; }
+.solo-mode .page { padding: 1.2rem; max-width: none; }
+.solo-mode .reveal { opacity: 1; transform: none; }
+.solo-mode body::after { display: none; } /* hoppa över kornigheten i iframen */
+.solo-scroll main.page { padding-bottom: 55vh; padding-top: 12vh; }
+
+/* --- Mobilmeny (hamburgare injiceras av main.js) --- */
+.site-menu-btn { display: none; }
+@media (max-width: 760px) {
+  .site-head { flex-wrap: wrap; }
+  .site-menu-btn {
+    display: grid;
+    place-items: center;
+    gap: 0;
+    order: 2;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    cursor: pointer;
+  }
+  .site-menu-btn span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    margin: 2px 0;
+    background: var(--text);
+    border-radius: 2px;
+    transition: transform .3s, opacity .2s;
+  }
+  .site-head.nav-open .site-menu-btn span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .site-head.nav-open .site-menu-btn span:nth-child(2) { opacity: 0; }
+  .site-head.nav-open .site-menu-btn span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+  .site-head nav {
+    order: 3;
+    flex-basis: 100%;
+    flex-direction: column;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .4s cubic-bezier(.22, 1, .36, 1);
+  }
+  .site-head.nav-open nav { max-height: 70vh; overflow-y: auto; padding: .6rem 0; }
+  .site-head nav a { padding: .55rem .7rem; }
+}
+
 /* --- Tillgänglighet: respektera reducerad rörelse --- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

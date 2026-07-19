@@ -30,6 +30,8 @@
   apply(); // körs direkt i <head> så rätt tema finns innan sidan målas
 
   document.addEventListener("DOMContentLoaded", function () {
+    // ingen panel inne i lightbox-iframes (solo-läget)
+    if (new URLSearchParams(location.search).get("solo")) return;
     var fab = document.createElement("button");
     fab.className = "fab";
     fab.textContent = "🎨";

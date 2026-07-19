@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alla effekter — Effektverkstan</title>
+<link rel="stylesheet" href="css/style.css">
+<script src="js/theme.js"></script>
+<style>
+  /* Verktygsrad: sök + kategorifilter */
+  .tools { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2rem; }
+  .search-wrap { position: relative; max-width: 420px; }
+  .search-wrap input {
+    width: 100%;
+    padding: .85rem 1rem .85rem 2.6rem;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    font-size: .95rem;
+    font-family: var(--font);
+    outline: none;
+    transition: border-color .25s, box-shadow .25s;
+  }
+  .search-wrap input:focus {
+    border-color: var(--violet);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--violet) 22%, transparent);
+  }
+  .search-wrap::before {
+    content: "🔍";
+    position: absolute;
+    left: .9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: .9rem;
+    opacity: .7;
+  }
+  .cat-chips { display: flex; gap: .4rem; flex-wrap: wrap; }
+  .cat-chips button {
+    padding: .35rem .75rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-family: var(--font);
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: color .2s, border-color .2s, background .2s;
+  }
+  .cat-chips button:hover { color: var(--text); border-color: var(--violet); }
+  .cat-chips button.active { background: var(--grad); color: #fff; border-color: transparent; }
+  .hit-count { color: var(--muted); font-size: .8rem; font-family: var(--mono); }
+
+  /* Rutnätet av små kort */
+  .fx-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: .9rem;
+  }
+  .fx-card {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--card);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform .25s cubic-bezier(.22, 1, .36, 1), border-color .25s;
+    animation: card-in .35s cubic-bezier(.22, 1, .36, 1) backwards;
+  }
+  @keyframes card-in { from { opacity: 0; transform: scale(.92); } }
+  .fx-card:hover { transform: translateY(-4px); border-color: color-mix(in srgb, var(--violet) 55%, transparent); }
+  .fx-banner {
+    height: 64px;
+    display: grid;
+    place-items: center;
+    font-size: 1.7rem;
+  }
+  .fx-body { padding: .7rem .85rem .85rem; }
+  .fx-body h3 { font-size: .85rem; line-height: 1.3; min-height: 2.2em; }
+  .fx-meta { display: flex; align-items: center; justify-content: space-between; margin-top: .5rem; }
+  .fx-cat { font-family: var(--mono); font-size: .62rem; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
+  .fx-open {
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    color: var(--text);
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    font-size: .85rem;
+    cursor: pointer;
+    transition: background .2s, border-color .2s, transform .2s;
+  }
+  .fx-card:hover .fx-open { border-color: var(--cyan); transform: scale(1.08); }
+  .no-hits { text-align: center; color: var(--muted); padding: 3rem 1rem; display: none; }
+  .no-hits.show { display: block; }
+  .no-hits .big { font-size: 2.6rem; display: block; margin-bottom: .6rem; }
+
+  /* Lightbox med iframe */
+  .lb-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: rgba(5, 5, 10, .72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(.6rem, 3vw, 2.5rem);
+  }
+  .lb-overlay.open { display: flex; animation: lb-fade .25s; }
+  @keyframes lb-fade { from { opacity: 0; } }
+  .lb-shell {
+    width: min(1000px, 100%);
+    height: min(80vh, 100%);
+    display: flex;
+    flex-direction: column;
+    border-radius: 18px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    box-shadow: 0 40px 120px rgba(0, 0, 0, .6);
+    animation: lb-pop .35s cubic-bezier(.22, 1.3, .36, 1);
+  }
+  @keyframes lb-pop { from { opacity: 0; transform: translateY(24px) scale(.96); } }
+  .lb-bar {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    padding: .7rem 1rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .lb-bar .lb-title { font-weight: 700; font-size: .92rem; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-bar .lb-cat { font-family: var(--mono); font-size: .65rem; letter-spacing: .12em; color: var(--cyan); text-transform: uppercase; }
+  .lb-bar a, .lb-bar button {
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    border-radius: 8px;
+    padding: .4rem .7rem;
+    font-size: .78rem;
+    font-family: var(--font);
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color .2s;
+  }
+  .lb-bar a:hover, .lb-bar button:hover { border-color: var(--violet); }
+  .lb-frame { flex: 1; border: none; width: 100%; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
+  <nav>
+    <a href="alla.html">Alla effekter</a>
+    <a href="bakgrund.html">Bakgrund</a>
+    <a href="mus.html">Mus</a>
+    <a href="3d.html">3D</a>
+    <a href="scroll.html">Scroll</a>
+    <a href="text.html">Text</a>
+    <a href="typografi.html">Typografi</a>
+    <a href="galleri.html">Galleri</a>
+    <a href="media.html">Media</a>
+    <a href="ui.html">UI</a>
+    <a href="formular.html">Formulär</a>
+    <a href="navigation.html">Navigation</a>
+    <a href="feedback.html">Feedback</a>
+    <a href="listor.html">Listor</a>
+    <a href="tillstand.html">Tillstånd</a>
+    <a href="css.html">Modern CSS</a>
+    <a href="labb.html">Labbet</a>
+  </nav>
+</header>
+
+<main class="page">
+  <div class="page-intro">
+    <div class="kicker">Hela biblioteket</div>
+    <h1>Alla effekter</h1>
+    <p>Varje demo i verkstan som små kort — sök, filtrera på kategori och tryck ⛶ (eller på kortet) för att öppna den levande demon i stort läge.</p>
+  </div>
+
+  <div class="tools">
+    <div class="search-wrap">
+      <input type="search" id="fx-search" placeholder="Sök bland alla effekter…" autocomplete="off">
+    </div>
+    <div class="cat-chips" id="cat-chips"></div>
+    <div class="hit-count" id="hit-count"></div>
+  </div>
+
+  <div class="fx-grid" id="fx-grid"></div>
+  <div class="no-hits" id="no-hits"><span class="big">🔭</span>Inga effekter matchade — prova ett annat sökord.</div>
+</main>
+
+<div class="lb-overlay" id="lb-overlay">
+  <div class="lb-shell">
+    <div class="lb-bar">
+      <span class="lb-cat" id="lb-cat"></span>
+      <span class="lb-title" id="lb-title"></span>
+      <button id="lb-prev" title="Föregående">←</button>
+      <button id="lb-next" title="Nästa">→</button>
+      <a id="lb-goto" href="#">Öppna sidan ↗</a>
+      <button id="lb-close" title="Stäng">✕</button>
+    </div>
+    <iframe class="lb-frame" id="lb-frame" title="Effektdemo"></iframe>
+  </div>
+</div>
+
+<footer class="site-foot">
+  <span>Effektverkstan — hela biblioteket på ett ställe.</span>
+  <a href="index.html">Till startsidan</a>
+</footer>
+
+<script src="js/registry.js"></script>
+<script src="js/main.js"></script>
+<script>
+(function () {
+  var grid = document.getElementById("fx-grid");
+  var chips = document.getElementById("cat-chips");
+  var search = document.getElementById("fx-search");
+  var hitCount = document.getElementById("hit-count");
+  var noHits = document.getElementById("no-hits");
+  var activeCat = "alla";
+  var query = "";
+  var visible = []; // aktuell filtrerad lista (för bläddring i lightboxen)
+
+  // Kategorichips
+  var allBtn = document.createElement("button");
+  allBtn.textContent = "Alla";
+  allBtn.className = "active";
+  allBtn.dataset.c = "alla";
+  chips.appendChild(allBtn);
+  Object.keys(FX_CATS).forEach(function (key) {
+    var b = document.createElement("button");
+    b.textContent = FX_CATS[key].icon + " " + FX_CATS[key].label;
+    b.dataset.c = key;
+    chips.appendChild(b);
+  });
+  chips.addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b) return;
+    chips.querySelector(".active").classList.remove("active");
+    b.classList.add("active");
+    activeCat = b.dataset.c;
+    render();
+  });
+  search.addEventListener("input", function () {
+    query = search.value.trim().toLowerCase();
+    render();
+  });
+
+  function render() {
+    grid.innerHTML = "";
+    visible = FX_REGISTRY.filter(function (d) {
+      if (activeCat !== "alla" && d.p !== activeCat) return false;
+      if (!query) return true;
+      return (d.t + " " + FX_CATS[d.p].label).toLowerCase().indexOf(query) >= 0;
+    });
+    visible.forEach(function (d, idx) {
+      var cat = FX_CATS[d.p];
+      var card = document.createElement("div");
+      card.className = "fx-card";
+      card.style.animationDelay = Math.min(idx * 18, 400) + "ms";
+      card.innerHTML =
+        '<div class="fx-banner" style="background:linear-gradient(140deg,' + cat.g + ')">' + d.i + "</div>" +
+        '<div class="fx-body"><h3>' + d.t + "</h3>" +
+        '<div class="fx-meta"><span class="fx-cat">' + cat.icon + " " + cat.label + "</span>" +
+        '<button class="fx-open" title="Förstora">⛶</button></div></div>';
+      card.addEventListener("click", function () { open(idx); });
+      grid.appendChild(card);
+    });
+    hitCount.textContent = visible.length + " av " + FX_REGISTRY.length + " effekter";
+    noHits.classList.toggle("show", visible.length === 0);
+  }
+
+  // Lightbox
+  var overlay = document.getElementById("lb-overlay");
+  var frame = document.getElementById("lb-frame");
+  var current = -1;
+
+  function open(idx) {
+    current = idx;
+    var d = visible[idx];
+    var cat = FX_CATS[d.p];
+    document.getElementById("lb-cat").textContent = cat.label;
+    document.getElementById("lb-title").textContent = d.t;
+    document.getElementById("lb-goto").href = d.p + ".html#fx-" + d.n;
+    frame.src = d.p + ".html?solo=fx-" + d.n + (d.scroll ? "&scroll=1" : "");
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function close() {
+    overlay.classList.remove("open");
+    frame.src = "about:blank"; // stoppa demons loopar direkt
+    document.body.style.overflow = "";
+    current = -1;
+  }
+  function step(dir) {
+    if (current < 0 || !visible.length) return;
+    open((current + dir + visible.length) % visible.length);
+  }
+
+  document.getElementById("lb-close").addEventListener("click", close);
+  document.getElementById("lb-prev").addEventListener("click", function () { step(-1); });
+  document.getElementById("lb-next").addEventListener("click", function () { step(1); });
+  overlay.addEventListener("click", function (e) { if (e.target === overlay) close(); });
+  document.addEventListener("keydown", function (e) {
+    if (!overlay.classList.contains("open")) return;
+    if (e.key === "Escape") close();
+    if (e.key === "ArrowLeft") step(-1);
+    if (e.key === "ArrowRight") step(1);
+  });
+
+  render();
+
+  // ?open=sida:nr — öppna en specifik demo direkt (används av favoriter m.m.)
+  var openParam = new URLSearchParams(location.search).get("open");
+  if (openParam) {
+    var parts = openParam.split(":");
+    var idx = -1;
+    visible.forEach(function (d, i) { if (d.p === parts[0] && d.n === parts[1]) idx = i; });
+    if (idx >= 0) open(idx);
+  }
+})();
+</script>
+</body>
+</html>
