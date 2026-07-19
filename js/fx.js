@@ -4,7 +4,10 @@
 (function () {
   var root = document.documentElement;
   var fine = window.matchMedia("(pointer: fine)").matches;
-  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var reducedMQ = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function reduced() { // systeminställning ELLER "Rörelse: Av" i panelen
+    return reducedMQ || root.getAttribute("data-motion") === "av";
+  }
 
   var bgLayer = null, bgRaf = 0, bgListeners = [];
   var curLayer = null, curRaf = 0, curListeners = [];
@@ -75,7 +78,7 @@
             }
           }
         });
-        if (!reduced) bgRaf = requestAnimationFrame(tick);
+        if (!reduced()) bgRaf = requestAnimationFrame(tick);
       }
       tick(); // vid reducerad rörelse ritas en stillbild
     },
@@ -110,7 +113,7 @@
           ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
           ctx.fillStyle = "rgba(160,160,220," + s.a + ")"; ctx.fill();
         });
-        if (!reduced) bgRaf = requestAnimationFrame(tick);
+        if (!reduced()) bgRaf = requestAnimationFrame(tick);
       }
       tick();
     }
@@ -185,7 +188,7 @@
     var bg = root.getAttribute("data-bg");
     if (bg && BG[bg]) BG[bg]();
     var cur = root.getAttribute("data-cursor");
-    if (cur && fine && !reduced && CURSOR[cur]) CURSOR[cur]();
+    if (cur && fine && !reduced() && CURSOR[cur]) CURSOR[cur]();
   }
 
   document.addEventListener("fx-change", rebuild);

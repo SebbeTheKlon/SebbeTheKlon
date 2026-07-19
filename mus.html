@@ -339,7 +339,10 @@ document.querySelectorAll(".spot-card").forEach(function (card) {
     }
   });
 
+  var paused = false;
+  if (window.fxVisible) fxVisible(canvas, function (v) { paused = !v; });
   function tick() {
+    if (paused) { requestAnimationFrame(tick); return; }
     ctx.clearRect(0, 0, W, H);
     parts = parts.filter(function (p) { return p.life > 0; });
     parts.forEach(function (p) {

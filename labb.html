@@ -297,7 +297,10 @@
 
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var start = performance.now();
+  var paused = false;
+  if (window.fxVisible) fxVisible(canvas, function (v) { paused = !v; });
   function tick(now) {
+    if (paused) { requestAnimationFrame(tick); return; }
     gl.uniform1f(uT, (now - start) / 1000);
     gl.uniform2f(uR, canvas.width, canvas.height);
     gl.uniform2f(uM, mx, my);
