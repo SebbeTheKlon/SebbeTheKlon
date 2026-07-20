@@ -112,6 +112,7 @@
 <header class="site-head">
   <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
   <nav>
+    <a href="alla.html">Alla effekter</a>
     <a href="bakgrund.html">Bakgrund</a>
     <a href="mus.html">Mus</a>
     <a href="3d.html">3D</a>
@@ -128,6 +129,7 @@
     <a href="tillstand.html">Tillstånd</a>
     <a href="css.html">Modern CSS</a>
     <a href="labb.html">Labbet</a>
+    <a href="bygg.html">Bygg 🧰</a>
   </nav>
 </header>
 
@@ -137,7 +139,8 @@
     <div class="kicker">Ett levande bibliotek</div>
     <h1>Bygg hemsidor med <span class="grad">effekter som känns</span></h1>
     <p>En byggverkstad med de bästa interaktiva och subtila effekterna som används på moderna sajter idag — bakgrunder, museffekter, 3D, scroll, text, gallerier och mikrointeraktioner. Allt i ren HTML, CSS och JavaScript.</p>
-    <a class="btn" href="bakgrund.html">Utforska biblioteket →</a>
+    <a class="btn" href="alla.html">Utforska alla effekter →</a>
+    <a class="btn" href="bygg.html" style="margin-left:.6rem">🧰 Bygg din egen sida</a>
   </div>
   <div class="scroll-hint">Scrolla ↓</div>
 </section>
@@ -150,6 +153,11 @@
   </div>
 
   <div class="cats">
+    <a class="cat reveal" href="alla.html" style="border-color:color-mix(in srgb, var(--violet) 45%, transparent)">
+      <span class="icon">🗂️</span><span class="arrow">↗</span>
+      <h2>Alla effekter</h2>
+      <p>Hela biblioteket som sökbart rutnät — förstora vilken demo som helst i stort läge med ⛶.</p>
+    </a>
     <a class="cat reveal" href="bakgrund.html">
       <span class="icon">🌌</span><span class="arrow">↗</span>
       <h2>Bakgrundseffekter</h2>
@@ -230,6 +238,11 @@
       <h2>Labbet</h2>
       <p>WebGL-shaders, scroll-drivna CSS-animationer, View Transitions API, gooey-filter och typografi som reagerar på musen.</p>
     </a>
+    <a class="cat reveal" href="bygg.html" style="border-color:color-mix(in srgb, var(--cyan) 45%, transparent)">
+      <span class="icon">🧰</span><span class="arrow">↗</span>
+      <h2>Byggverkstaden</h2>
+      <p>Plocka ihop bakgrund, rubrikstil, knappar och kort — se sidan växa fram live och ladda ner den som färdig HTML.</p>
+    </a>
   </div>
 </main>
 
@@ -277,7 +290,12 @@
 
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // pausa arbetet när hjältesektionen scrollats ur vy
+  var paused = false;
+  if (window.fxVisible) fxVisible(canvas, function (v) { paused = !v; });
+
   function tick() {
+    if (paused) { requestAnimationFrame(tick); return; }
     ctx.clearRect(0, 0, W, H);
     for (var i = 0; i < particles.length; i++) {
       var p = particles[i];

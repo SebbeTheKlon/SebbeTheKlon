@@ -131,6 +131,7 @@
 <header class="site-head">
   <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
   <nav>
+    <a href="alla.html">Alla effekter</a>
     <a href="bakgrund.html">Bakgrund</a>
     <a href="mus.html">Mus</a>
     <a href="3d.html">3D</a>
@@ -147,6 +148,7 @@
     <a href="tillstand.html">Tillstånd</a>
     <a href="css.html">Modern CSS</a>
     <a href="labb.html">Labbet</a>
+    <a href="bygg.html">Bygg 🧰</a>
   </nav>
 </header>
 
@@ -338,7 +340,10 @@ document.querySelectorAll(".spot-card").forEach(function (card) {
     }
   });
 
+  var paused = false;
+  if (window.fxVisible) fxVisible(canvas, function (v) { paused = !v; });
   function tick() {
+    if (paused) { requestAnimationFrame(tick); return; }
     ctx.clearRect(0, 0, W, H);
     parts = parts.filter(function (p) { return p.life > 0; });
     parts.forEach(function (p) {

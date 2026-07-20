@@ -117,6 +117,7 @@
 <header class="site-head">
   <a class="logo" href="index.html">Effekt<span>verkstan</span></a>
   <nav>
+    <a href="alla.html">Alla effekter</a>
     <a href="bakgrund.html">Bakgrund</a>
     <a href="mus.html">Mus</a>
     <a href="3d.html">3D</a>
@@ -133,6 +134,7 @@
     <a href="tillstand.html">Tillstånd</a>
     <a href="css.html">Modern CSS</a>
     <a href="labb.html">Labbet</a>
+    <a href="bygg.html">Bygg 🧰</a>
   </nav>
 </header>
 
@@ -238,7 +240,10 @@
   stage.addEventListener("mouseleave", function () { mouse.x = -9999; mouse.y = -9999; });
 
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var paused = false;
+  if (window.fxVisible) fxVisible(canvas, function (v) { paused = !v; });
   function tick() {
+    if (paused) { requestAnimationFrame(tick); return; }
     ctx.clearRect(0, 0, W, H);
     pts.forEach(function (p, i) {
       p.x += p.vx; p.y += p.vy;
@@ -299,7 +304,10 @@
     }
   }
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var paused = false;
+  if (window.fxVisible) fxVisible(canvas, function (v) { paused = !v; });
   function tick() {
+    if (paused) { requestAnimationFrame(tick); return; }
     ctx.clearRect(0, 0, W, H);
     stars.forEach(function (s) {
       s.x -= s.speed;

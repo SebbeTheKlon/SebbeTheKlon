@@ -17,7 +17,12 @@
     ]},
     { key: "font", label: "Typsnitt", opts: [["", "Sans"], ["serif", "Serif"], ["mono", "Mono"]] },
     { key: "radius", label: "Hörn", opts: [["skarp", "Skarpa"], ["mjuk", "Mjuka"], ["", "Runda"], ["extra", "Extra runda"]] },
-    { key: "border", label: "Ramar", opts: [["", "Subtila"], ["tydlig", "Tydliga"], ["neon", "Neon"]] }
+    { key: "border", label: "Ramar", opts: [["", "Subtila"], ["tydlig", "Tydliga"], ["neon", "Neon"]] },
+    { key: "bg", label: "Sajtbakgrund ✨", opts: [["", "Ingen"], ["aurora", "Aurora"], ["partiklar", "Partiklar"], ["rutnat", "Rutnät"], ["stjarnor", "Stjärnor"]] },
+    { key: "cursor", label: "Muspekare ✨", opts: [["", "Standard"], ["ring", "Ring"], ["spar", "Partikelspår"]] },
+    { key: "textsize", label: "Textstorlek ♿", opts: [["", "Normal"], ["stor", "Större"]] },
+    { key: "motion", label: "Rörelse ♿", opts: [["", "På"], ["av", "Av"]] },
+    { key: "contrast", label: "Kontrast ♿", opts: [["", "Normal"], ["hog", "Hög"]] }
   ];
 
   function apply() {
@@ -26,10 +31,43 @@
       if (v) root.setAttribute("data-" + g.key, v);
       else root.removeAttribute("data-" + g.key);
     });
+    document.dispatchEvent(new CustomEvent("fx-change")); // låt fx.js reagera
   }
   apply(); // körs direkt i <head> så rätt tema finns innan sidan målas
 
   document.addEventListener("DOMContentLoaded", function () {
+    // ingen panel eller sajteffekter inne i lightbox-iframes (solo-läget)
+    if (new URLSearchParams(location.search).get("solo")) return;
+
+    // ladda sajteffekt-motorn, registret och favoriterna — injiceras här
+    // så att alla sidor får dem utan att behöva ändras
+    ["js/fx.js", "js/registry.js", "js/favs.js"].forEach(function (src, i) {
+      if (src === "js/registry.js" && window.FX_REGISTRY) return; // redan laddad (alla.html)
+      var s = document.createElement("script");
+      s.src = src;
+      s.async = false; // behåll ordningen: registry före favs
+      document.body.appendChild(s);
+    });
+
+    // FAB-rad: ⬆ till toppen, ⭐ favoriter, 🎨 tema
+    var stack = document.createElement("div");
+    stack.className = "fab-stack";
+
+    var topBtn = document.createElement("button");
+    topBtn.className = "fab fab-top";
+    topBtn.textContent = "⬆";
+    topBtn.setAttribute("aria-label", "Till toppen");
+    topBtn.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+    window.addEventListener("scroll", function () {
+      topBtn.classList.toggle("show", window.scrollY > 400);
+    }, { passive: true });
+
+    var favBtn = document.createElement("button");
+    favBtn.className = "fab";
+    favBtn.id = "fab-favs";
+    favBtn.textContent = "⭐";
+    favBtn.setAttribute("aria-label", "Mina favoriter");
+
     var fab = document.createElement("button");
     fab.className = "fab";
     fab.textContent = "🎨";
@@ -53,7 +91,10 @@
     html += '<div class="tp-group"><button class="tp-btn" id="tp-reset">↺ Återställ allt</button></div>';
     panel.innerHTML = html;
 
-    document.body.appendChild(fab);
+    stack.appendChild(topBtn);
+    stack.appendChild(favBtn);
+    stack.appendChild(fab);
+    document.body.appendChild(stack);
     document.body.appendChild(panel);
 
     function mark() {
