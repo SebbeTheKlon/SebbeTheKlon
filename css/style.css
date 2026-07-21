@@ -495,6 +495,80 @@ body::after {
 .site-cursor.hot .scr { width: 50px; height: 50px; border-color: var(--pink); }
 .site-trail { position: fixed; inset: 0; z-index: 9998; pointer-events: none; }
 
+/* --- Föregående/nästa-pager (injiceras av js/pager.js) --- */
+.pager {
+  display: flex;
+  align-items: stretch;
+  gap: .8rem;
+  padding: 1.4rem clamp(1rem, 4vw, 3rem);
+  border-top: 1px solid var(--border);
+}
+.pager-btn {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  padding: .9rem 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  text-decoration: none;
+  color: var(--text);
+  transition: transform .25s cubic-bezier(.22, 1, .36, 1), border-color .25s, background .25s;
+}
+.pager-btn:hover { transform: translateY(-3px); border-color: var(--violet); background: var(--card-hover); }
+.pager-next { text-align: right; align-items: flex-end; }
+.pager-dir {
+  font-family: var(--mono);
+  font-size: .66rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--cyan);
+}
+.pager-name { font-weight: 700; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.pager-count {
+  align-self: center;
+  font-family: var(--mono);
+  font-size: .78rem;
+  color: var(--muted);
+  white-space: nowrap;
+  padding: 0 .4rem;
+}
+@media (max-width: 560px) {
+  .pager { flex-direction: column; }
+  .pager-next { text-align: left; align-items: flex-start; }
+  .pager-count { align-self: center; }
+}
+
+/* --- Favoriter: export/import (injiceras av js/favs.js) --- */
+.fav-io {
+  display: flex;
+  gap: .5rem;
+  padding: .8rem;
+  border-top: 1px solid var(--border);
+}
+.fav-io-btn {
+  flex: 1;
+  padding: .5rem;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: .78rem;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+}
+.fav-io-btn:hover { border-color: var(--violet); background: var(--card-hover); }
+.fav-io-msg {
+  padding: 0 .8rem .8rem;
+  font-size: .78rem;
+  min-height: 1.2em;
+}
+.fav-io-msg.ok { color: #34d399; }
+.fav-io-msg.err { color: #f87171; }
+
 /* --- Solo-läge: visar en enda demo (lightboxen på alla.html) --- */
 .solo-mode .site-head,
 .solo-mode .page-intro,
