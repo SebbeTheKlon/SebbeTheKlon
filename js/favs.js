@@ -54,17 +54,32 @@
     '<div class="fav-head"><strong>⭐ Mina favoriter</strong><button class="fav-close" aria-label="Stäng">✕</button></div>' +
     '<div class="fav-list"></div>' +
     '<div class="fav-io">' +
+      '<button class="fav-io-btn" id="fav-copy" title="Kopierar JSON till urklipp — klistra in i chatten med Claude">📋 Kopiera</button>' +
       '<button class="fav-io-btn" id="fav-export">⬇ Exportera</button>' +
-      '<button class="fav-io-btn" id="fav-import">⬆ Importera</button>' +
-      '<input type="file" id="fav-import-file" accept="application/json" hidden>' +
     "</div>" +
     '<div class="fav-io">' +
-      '<button class="fav-io-btn" id="fav-sync" title="Hämtar data/favoriter.json från repot">🔄 Ladda från GitHub</button>' +
+      '<button class="fav-io-btn" id="fav-import">⬆ Importera</button>' +
+      '<input type="file" id="fav-import-file" accept="application/json" hidden>' +
+      '<button class="fav-io-btn" id="fav-sync" title="Hämtar data/favoriter.json från repot">🔄 GitHub</button>' +
     "</div>" +
     '<div class="fav-io-msg" id="fav-io-msg"></div>';
   document.body.appendChild(drawer);
   drawer.querySelector(".fav-close").addEventListener("click", function () {
     drawer.classList.remove("open");
+  });
+
+  /* Kopiera JSON till urklipp — snabbast för att skicka listan till Claude
+     i chatten utan att ladda ner/ladda upp någon fil */
+  drawer.querySelector("#fav-copy").addEventListener("click", function () {
+    var msg = document.getElementById("fav-io-msg");
+    var text = JSON.stringify({ favoriter: favs }, null, 2);
+    navigator.clipboard.writeText(text).then(function () {
+      msg.textContent = "✓ Kopierat! Klistra in det i chatten så committar Claude det.";
+      msg.className = "fav-io-msg ok";
+    }, function () {
+      msg.textContent = "✕ Kunde inte komma åt urklipp — använd Exportera istället.";
+      msg.className = "fav-io-msg err";
+    });
   });
 
   /* Exportera favoriterna som en nedladdningsbar JSON-fil */
