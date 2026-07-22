@@ -1,12 +1,6 @@
-/* Effektverkstan — delad JS: reveal-on-scroll, aktiv nav-länk, demo-id:n,
-   solo-läge (för lightboxen i Alla effekter) och mobilmeny. */
+/* Effektverkstan — delad JS: reveal-on-scroll, demo-id:n, solo-läge
+   (för lightboxen i Alla effekter) och menyknappen till sidopanelen. */
 (function () {
-  // Markera aktiv sida i navigationen
-  var here = location.pathname.split("/").pop() || "index.html";
-  document.querySelectorAll(".site-head nav a").forEach(function (a) {
-    if (a.getAttribute("href") === here) a.classList.add("active");
-  });
-
   // Ge varje demo ett id utifrån sitt nummer (fx-01, fx-02 …)
   document.querySelectorAll(".demo").forEach(function (sec) {
     var nr = sec.querySelector(".nr");
@@ -37,15 +31,15 @@
 
   document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
 
-  // Mobilmeny: hamburgare i headern under 760 px (knappen injiceras här
-  // så att befintliga sidor inte behöver ändras)
+  // Menyknapp: öppnar sidopanelen med all navigering (js/navdrawer.js
+  // fyller panelen och binder klicket — knappen skapas tidigt här så den
+  // garanterat finns i DOM:en när navdrawer.js körs senare)
   var head = document.querySelector(".site-head");
   if (head && !solo) {
     var mb = document.createElement("button");
     mb.className = "site-menu-btn";
-    mb.setAttribute("aria-label", "Meny");
+    mb.setAttribute("aria-label", "Öppna meny");
     mb.innerHTML = "<span></span><span></span><span></span>";
-    mb.addEventListener("click", function () { head.classList.toggle("nav-open"); });
     head.appendChild(mb);
   }
 

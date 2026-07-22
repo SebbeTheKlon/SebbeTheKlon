@@ -20,6 +20,14 @@ window.FX_CATS = {
   labb:       { label: "Labbet",     icon: "🧪", g: "#f87171,#7f1d1d" }
 };
 
+/* Ämnesgrupper för sidopanelen (js/navdrawer.js) — täcker alla 16 kategorier */
+window.FX_NAV_GROUPS = [
+  { label: "Visuellt", cats: ["bakgrund", "mus", "3d", "scroll", "galleri", "media"] },
+  { label: "Interaktion", cats: ["formular", "navigation", "feedback", "listor", "tillstand"] },
+  { label: "Innehåll", cats: ["text", "typografi", "ui"] },
+  { label: "Kod", cats: ["css", "labb"] }
+];
+
 window.FX_REGISTRY = [
   { p: "bakgrund", n: "01", t: "Aurora / gradientblobbar", i: "🌠" },
   { p: "bakgrund", n: "02", t: "Partikelnät", i: "🕸️" },
