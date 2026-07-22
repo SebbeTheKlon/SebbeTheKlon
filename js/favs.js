@@ -58,6 +58,9 @@
       '<button class="fav-io-btn" id="fav-import">⬆ Importera</button>' +
       '<input type="file" id="fav-import-file" accept="application/json" hidden>' +
     "</div>" +
+    '<div class="fav-io">' +
+      '<button class="fav-io-btn" id="fav-sync" title="Hämtar data/favoriter.json från repot">🔄 Ladda från GitHub</button>' +
+    "</div>" +
     '<div class="fav-io-msg" id="fav-io-msg"></div>';
   document.body.appendChild(drawer);
   drawer.querySelector(".fav-close").addEventListener("click", function () {
@@ -74,6 +77,19 @@
     URL.revokeObjectURL(a.href);
   });
 
+  /* Gemensam sammanslagning: tar in {favoriter:[...]} eller en ren array */
+  function mergeIncoming(data) {
+    var incoming = Array.isArray(data) ? data : data.favoriter;
+    if (!Array.isArray(incoming)) throw new Error("fel format");
+    var before = favs.length;
+    incoming.forEach(function (id) { if (favs.indexOf(id) < 0) favs.push(id); });
+    save();
+    refreshButtons();
+    renderDrawer();
+    updateBadge();
+    return favs.length - before;
+  }
+
   /* Importera från en tidigare exporterad fil — slås ihop med befintliga */
   var fileInput = drawer.querySelector("#fav-import-file");
   drawer.querySelector("#fav-import").addEventListener("click", function () { fileInput.click(); });
@@ -84,16 +100,8 @@
     reader.onload = function () {
       var msg = document.getElementById("fav-io-msg");
       try {
-        var data = JSON.parse(reader.result);
-        var incoming = Array.isArray(data) ? data : data.favoriter;
-        if (!Array.isArray(incoming)) throw new Error("fel format");
-        var before = favs.length;
-        incoming.forEach(function (id) { if (favs.indexOf(id) < 0) favs.push(id); });
-        save();
-        refreshButtons();
-        renderDrawer();
-        updateBadge();
-        msg.textContent = "✓ Importerade " + (favs.length - before) + " nya favoriter.";
+        var added = mergeIncoming(JSON.parse(reader.result));
+        msg.textContent = "✓ Importerade " + added + " nya favoriter.";
         msg.className = "fav-io-msg ok";
       } catch (e) {
         msg.textContent = "✕ Kunde inte läsa filen — är det en exporterad favoritfil?";
@@ -102,6 +110,28 @@
       fileInput.value = "";
     };
     reader.readAsText(file);
+  });
+
+  /* Hämta favoriter som är sparade i repot (data/favoriter.json) — praktiskt
+     för att synka mellan enheter utan att behöva ladda ner filen själv varje
+     gång. Filen uppdateras genom att exportera och be Claude committa den. */
+  drawer.querySelector("#fav-sync").addEventListener("click", function () {
+    var msg = document.getElementById("fav-io-msg");
+    msg.textContent = "Hämtar…";
+    msg.className = "fav-io-msg";
+    fetch("data/favoriter.json", { cache: "no-store" })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+      .then(function (data) {
+        var added = mergeIncoming(data);
+        msg.textContent = added > 0
+          ? "✓ Hämtade " + added + " favoriter från GitHub."
+          : "✓ Redan uppdaterad — inga nya favoriter i repot.";
+        msg.className = "fav-io-msg ok";
+      })
+      .catch(function () {
+        msg.textContent = "✕ Kunde inte hämta data/favoriter.json.";
+        msg.className = "fav-io-msg err";
+      });
   });
 
   function renderDrawer() {

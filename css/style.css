@@ -92,9 +92,9 @@ body::after {
   position: sticky;
   top: 0;
   z-index: 100;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
   padding: .9rem clamp(1rem, 4vw, 3rem);
   background: var(--head-bg);
@@ -103,9 +103,11 @@ body::after {
   border-bottom: 1px solid var(--border);
 }
 .logo {
+  grid-column: 2;
+  justify-self: center;
   font-weight: 800;
-  font-size: 1.05rem;
-  letter-spacing: .02em;
+  font-size: 1.55rem;
+  letter-spacing: .01em;
   text-decoration: none;
   color: var(--text);
   white-space: nowrap;
@@ -116,28 +118,9 @@ body::after {
   background-clip: text;
   color: transparent;
 }
-.site-head nav {
-  display: flex;
-  gap: .25rem;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.site-head nav::-webkit-scrollbar { display: none; }
-.site-head nav a {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: .88rem;
-  padding: .4rem .7rem;
-  border-radius: 999px;
-  transition: color .25s, background .25s;
-  white-space: nowrap;
-}
-.site-head nav a:hover { color: var(--text); background: var(--card-hover); }
-.site-head nav a.active {
-  color: var(--text);
-  background: var(--card-hover);
-  box-shadow: inset 0 0 0 1px var(--border);
-}
+/* Den ursprungliga länklistan finns kvar i markupen (icke-JS/SEO-fallback)
+   men navigeringen sker numera via sidopanelen (js/navdrawer.js) */
+.site-head nav { display: none; }
 
 /* --- Sidlayout --- */
 .page {
@@ -577,7 +560,10 @@ body::after {
 .solo-mode .fab-stack,
 .solo-mode .theme-panel,
 .solo-mode .code-btn,
-.solo-mode .fav-btn { display: none !important; }
+.solo-mode .fav-btn,
+.solo-mode .site-menu-btn,
+.solo-mode .nav-drawer,
+.solo-mode .pager { display: none !important; }
 .solo-mode .demo { display: none; }
 .solo-mode .demo.solo { display: block; margin: 0; }
 .solo-mode .page { padding: 1.2rem; max-width: none; }
@@ -585,45 +571,100 @@ body::after {
 .solo-mode body::after { display: none; } /* hoppa över kornigheten i iframen */
 .solo-scroll main.page { padding-bottom: 55vh; padding-top: 12vh; }
 
-/* --- Mobilmeny (hamburgare injiceras av main.js) --- */
-.site-menu-btn { display: none; }
-@media (max-width: 760px) {
-  .site-head { flex-wrap: wrap; }
-  .site-menu-btn {
-    display: grid;
-    place-items: center;
-    gap: 0;
-    order: 2;
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    cursor: pointer;
-  }
-  .site-menu-btn span {
-    display: block;
-    width: 18px;
-    height: 2px;
-    margin: 2px 0;
-    background: var(--text);
-    border-radius: 2px;
-    transition: transform .3s, opacity .2s;
-  }
-  .site-head.nav-open .site-menu-btn span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-  .site-head.nav-open .site-menu-btn span:nth-child(2) { opacity: 0; }
-  .site-head.nav-open .site-menu-btn span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-  .site-head nav {
-    order: 3;
-    flex-basis: 100%;
-    flex-direction: column;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height .4s cubic-bezier(.22, 1, .36, 1);
-  }
-  .site-head.nav-open nav { max-height: 70vh; overflow-y: auto; padding: .6rem 0; }
-  .site-head nav a { padding: .55rem .7rem; }
+/* --- Menyknapp: öppnar sidopanelen (js/navdrawer.js), synlig på alla storlekar --- */
+.site-menu-btn {
+  grid-column: 3;
+  justify-self: end;
+  display: grid;
+  place-items: center;
+  gap: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
 }
+.site-menu-btn:hover { border-color: var(--violet); background: var(--card-hover); }
+.site-menu-btn span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  margin: 2px 0;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform .3s, opacity .2s;
+}
+.site-menu-btn.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.site-menu-btn.open span:nth-child(2) { opacity: 0; }
+.site-menu-btn.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+/* --- Navigationens sidopanel (injiceras av js/navdrawer.js) --- */
+.nav-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(320px, 88vw);
+  z-index: 350;
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  box-shadow: -20px 0 60px rgba(0, 0, 0, .45);
+  transform: translateX(105%);
+  transition: transform .4s cubic-bezier(.22, 1, .36, 1);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.nav-drawer.open { transform: none; }
+.nd-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.1rem 1.2rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg2);
+}
+.nd-head strong { font-size: 1rem; }
+.nd-close { border: none; background: none; color: var(--muted); font-size: 1rem; cursor: pointer; }
+.nd-close:hover { color: var(--text); }
+.nd-pinned {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  padding: .8rem;
+  border-bottom: 1px solid var(--border);
+}
+.nd-group { padding: .8rem; border-bottom: 1px solid var(--border); }
+.nd-group:last-child { border-bottom: none; }
+.nd-label {
+  font-family: var(--mono);
+  font-size: .66rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0 .6rem .5rem;
+}
+.nd-link {
+  display: block;
+  padding: .55rem .7rem;
+  border-radius: 9px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: .9rem;
+  transition: background .2s, color .2s;
+}
+.nd-link:hover { background: var(--card-hover); }
+.nd-link.active {
+  background: var(--card);
+  color: var(--cyan);
+  box-shadow: inset 0 0 0 1px var(--border);
+  font-weight: 600;
+}
+.nd-pinned .nd-link { font-weight: 600; }
 
 /* --- Tillgänglighet: respektera reducerad rörelse --- */
 @media (prefers-reduced-motion: reduce) {

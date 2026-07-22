@@ -41,7 +41,7 @@
 
     // ladda sajteffekt-motorn, registret och favoriterna — injiceras här
     // så att alla sidor får dem utan att behöva ändras
-    ["js/fx.js", "js/registry.js", "js/pager.js", "js/favs.js"].forEach(function (src, i) {
+    ["js/fx.js", "js/registry.js", "js/navdrawer.js", "js/pager.js", "js/favs.js"].forEach(function (src, i) {
       if (src === "js/registry.js" && window.FX_REGISTRY) return; // redan laddad (alla.html)
       var s = document.createElement("script");
       s.src = src;
