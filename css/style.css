@@ -573,8 +573,8 @@ body::after {
 
 /* --- Menyknapp: öppnar sidopanelen (js/navdrawer.js), synlig på alla storlekar --- */
 .site-menu-btn {
-  grid-column: 3;
-  justify-self: end;
+  grid-column: 1;
+  justify-self: start;
   display: grid;
   place-items: center;
   gap: 0;
@@ -604,14 +604,14 @@ body::after {
 .nav-drawer {
   position: fixed;
   top: 0;
-  right: 0;
+  left: 0;
   bottom: 0;
   width: min(320px, 88vw);
   z-index: 350;
   background: var(--bg2);
-  border-left: 1px solid var(--border);
-  box-shadow: -20px 0 60px rgba(0, 0, 0, .45);
-  transform: translateX(105%);
+  border-right: 1px solid var(--border);
+  box-shadow: 20px 0 60px rgba(0, 0, 0, .45);
+  transform: translateX(-105%);
   transition: transform .4s cubic-bezier(.22, 1, .36, 1);
   display: flex;
   flex-direction: column;
@@ -622,15 +622,24 @@ body::after {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: .5rem;
   padding: 1.1rem 1.2rem;
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
   background: var(--bg2);
 }
-.nd-head strong { font-size: 1rem; }
-.nd-close { border: none; background: none; color: var(--muted); font-size: 1rem; cursor: pointer; }
-.nd-close:hover { color: var(--text); }
+.nd-head strong { font-size: 1rem; flex: 1; }
+.nd-pin, .nd-close { border: none; background: none; color: var(--muted); font-size: 1rem; cursor: pointer; padding: .2rem; border-radius: 6px; }
+.nd-pin:hover, .nd-close:hover { color: var(--text); }
+.nd-pin.active { color: var(--cyan); transform: rotate(-35deg); }
+
+/* Innehållet skjuts åt höger när panelen är fäst, så den blir en riktig
+   sidebar i stället för ett overlay som täcker sidan */
+html.nav-push body { padding-left: min(320px, 88vw); transition: padding-left .4s cubic-bezier(.22, 1, .36, 1); }
+@media (max-width: 700px) {
+  html.nav-push body { padding-left: 0; } /* för trångt för att fästa på små skärmar */
+}
 .nd-pinned {
   display: flex;
   flex-direction: column;
