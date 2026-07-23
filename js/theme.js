@@ -35,6 +35,14 @@
   }
   apply(); // körs direkt i <head> så rätt tema finns innan sidan målas
 
+  // Om sidopanelen är fäst: reservera plats åt den direkt (innan sidan
+  // målas) så innehållet inte hoppar till efter att js/navdrawer.js laddat
+  try {
+    if (localStorage.getItem("fx-nav-pinned") === "1" && !new URLSearchParams(location.search).get("solo")) {
+      root.classList.add("nav-push");
+    }
+  } catch (e) {}
+
   document.addEventListener("DOMContentLoaded", function () {
     // ingen panel eller sajteffekter inne i lightbox-iframes (solo-läget)
     if (new URLSearchParams(location.search).get("solo")) return;
