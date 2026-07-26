@@ -297,7 +297,20 @@ body::after {
   cursor: pointer;
 }
 .fav-close:hover { color: var(--text); }
-.fav-list { flex: 1; overflow-y: auto; padding: .8rem; display: flex; flex-direction: column; gap: .5rem; }
+.fav-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: .8rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--violet) transparent;
+}
+.fav-list::-webkit-scrollbar { width: 7px; }
+.fav-list::-webkit-scrollbar-track { background: transparent; }
+.fav-list::-webkit-scrollbar-thumb { background: var(--grad); border-radius: 99px; }
+.fav-list::-webkit-scrollbar-thumb:hover { background: var(--violet); }
 .fav-empty { color: var(--muted); font-size: .88rem; padding: 1rem .4rem; }
 .fav-empty a { color: var(--cyan); }
 .fav-row {
@@ -616,7 +629,13 @@ body::after {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--violet) transparent;
 }
+.nav-drawer::-webkit-scrollbar { width: 7px; }
+.nav-drawer::-webkit-scrollbar-track { background: transparent; }
+.nav-drawer::-webkit-scrollbar-thumb { background: var(--grad); border-radius: 99px; }
+.nav-drawer::-webkit-scrollbar-thumb:hover { background: var(--violet); }
 .nav-drawer.open { transform: none; }
 .nd-head {
   display: flex;
